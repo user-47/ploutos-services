@@ -30,9 +30,15 @@ Route::group(['namespace' => 'Api\V1\\'], function() {
 
     Route::group(['middleware' => 'auth:api'], function() {
         Route::get('/users/{user}', 'UserController@show');
+        
+        // TRADES
+        Route::post('/trades/{trade}/accept', 'TradeController@accept');
+        Route::post('/trades', 'TradeController@store');
     });
 
 
+    // TRADES
+    Route::get('/trades', 'TradeController@index');
 });
 
 Route::fallback(function(){

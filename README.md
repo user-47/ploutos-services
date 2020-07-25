@@ -18,4 +18,4 @@ Backend APIs for Ploutos services
 - `php artisan passport:install` create encryption keys needed to generate secure access tokens
 
 ## Testing
-- `vendor/bin/phpunit` run all tests
+- `php artisan test` run all tests
