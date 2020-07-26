@@ -16,10 +16,7 @@ class TradeControllerTest extends TestCase
     /** @test */
     public function only_authenticated_users_can_make_a_trade_request()
     {
-        $response = $this->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->post('api/v1/trades', $this->validTradeData());
+        $response = $this->postJson('api/v1/trades', $this->validTradeData());
 
         $response->assertStatus(401);
         $this->assertCount(0, Trade::all());
@@ -29,11 +26,8 @@ class TradeControllerTest extends TestCase
     public function a_trade_request_must_have_required_fields()
     {
         $user = factory(User::class)->create();
-        $response = $this->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->actingAs($user, 'api')
-            ->post('api/v1/trades', [
+        $response = $this->actingAs($user, 'api')
+            ->postJson('api/v1/trades', [
                 'amount' => 0,
                 'from_currency' => '',
                 'to_currency' => '',
@@ -50,11 +44,8 @@ class TradeControllerTest extends TestCase
     public function a_trade_request_can_be_placed()
     {
         $user = factory(User::class)->create();
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])
-            ->actingAs($user, 'api')
-            ->post('api/v1/trades', $this->validTradeData());
+        $response = $this->actingAs($user, 'api')
+            ->postJson('api/v1/trades', $this->validTradeData());
 
         $response->assertStatus(201);
         $this->assertCount(1, Trade::all());
@@ -74,10 +65,7 @@ class TradeControllerTest extends TestCase
         factory(Trade::class, 10)->create(['user_id' => $users->random()->id,]);
 
 
-        $response = $this->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->get('api/v1/trades');
+        $response = $this->getJson('api/v1/trades');
 
         $response->assertStatus(200);
         $response->assertJsonCount(10);
@@ -88,21 +76,15 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
 
-        $this->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->actingAs($seller, 'api')
-            ->post('api/v1/trades', $this->validTradeData());
+        $this->actingAs($seller, 'api')
+            ->postJson('api/v1/trades', $this->validTradeData());
         
         $trade = Trade::first();
 
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])
-        ->actingAs($seller, 'api')
-        ->post("api/v1/trades/$trade->uuid/accept", [
-            'amount' => 1000,
-        ]);
+        $response = $this->actingAs($seller, 'api')
+            ->postJson("api/v1/trades/$trade->uuid/accept", [
+                'amount' => 1000,
+            ]);
 
         $response->assertStatus(403);
     }
@@ -113,21 +95,15 @@ class TradeControllerTest extends TestCase
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
 
-        $this->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->actingAs($seller, 'api')
-            ->post('api/v1/trades', $this->validTradeData());
+        $this->actingAs($seller, 'api')
+            ->postJson('api/v1/trades', $this->validTradeData());
         
         $trade = Trade::first();
 
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])
-        ->actingAs($buyer, 'api')
-        ->post("api/v1/trades/$trade->uuid/accept", [
-            'amount' => 0,
-        ]);
+        $response = $this->actingAs($buyer, 'api')
+            ->postJson("api/v1/trades/$trade->uuid/accept", [
+                'amount' => 0,
+            ]);
 
         $response->assertJsonValidationErrors('amount');
     }
@@ -138,21 +114,15 @@ class TradeControllerTest extends TestCase
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
 
-        $this->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->actingAs($seller, 'api')
-            ->post('api/v1/trades', $this->validTradeData());
+        $this->actingAs($seller, 'api')
+            ->postJson('api/v1/trades', $this->validTradeData());
         
         $trade = Trade::first();
 
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])
-        ->actingAs($buyer, 'api')
-        ->post("api/v1/trades/$trade->uuid/accept", [
-            'amount' => 1001,
-        ]);
+        $response = $this->actingAs($buyer, 'api')
+            ->postJson("api/v1/trades/$trade->uuid/accept", [
+                'amount' => 1001,
+            ]);
 
         $response->assertJsonValidationErrors('amount');
     }
@@ -163,21 +133,15 @@ class TradeControllerTest extends TestCase
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
 
-        $this->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->actingAs($seller, 'api')
-            ->post('api/v1/trades', $this->validTradeData());
+        $this->actingAs($seller, 'api')
+            ->postJson('api/v1/trades', $this->validTradeData());
         
         $trade = Trade::first();
 
-        $response = $this->withHeaders([
-            'Accept' => 'application/json',
-        ])
-        ->actingAs($buyer, 'api')
-        ->post("api/v1/trades/$trade->uuid/accept", [
-            'amount' => 1000,
-        ]);
+        $response = $this->actingAs($buyer, 'api')
+            ->postJson("api/v1/trades/$trade->uuid/accept", [
+                'amount' => 1000,
+            ]);
 
         $response->assertStatus(201);
 

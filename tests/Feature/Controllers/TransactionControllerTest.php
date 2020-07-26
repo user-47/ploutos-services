@@ -20,29 +20,20 @@ class TransactionControllerTest extends TestCase
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
 
-        $this->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->actingAs($seller, 'api')
-            ->post('api/v1/trades', $this->validTradeData());
+        $this->actingAs($seller, 'api')
+            ->postJson('api/v1/trades', $this->validTradeData());
         
         $trade = Trade::first();
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-        ])
-        ->actingAs($buyer, 'api')
-        ->post("api/v1/trades/$trade->uuid/accept", [
-            'amount' => 1000,
-        ]);
+        $this->actingAs($buyer, 'api')
+            ->postJson("api/v1/trades/$trade->uuid/accept", [
+                'amount' => 1000,
+            ]);
 
         $transaction =  Transaction::first();
 
-        $response = $this->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->actingAs($seller, 'api')
-            ->post("api/v1/transactions/$transaction->uuid/accept");
+        $response = $this->actingAs($seller, 'api')
+                        ->postJson("api/v1/transactions/$transaction->uuid/accept");
 
         $transaction->refresh();
 

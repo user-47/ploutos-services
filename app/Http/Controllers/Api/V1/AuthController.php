@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ class AuthController extends Controller
 
         $accessToken = $user->createToken('authToken')->accessToken;
 
-        return response()->json(['user' => $user, 'access_token' => $accessToken]);
+        return response()->json(['user' => new UserResource($user), 'access_token' => $accessToken]);
     }
 
     public function login(Request $request)
@@ -44,6 +45,6 @@ class AuthController extends Controller
 
         $accessToken = Auth::user()->createToken('authToken')->accessToken;
 
-        return response()->json(['user' => Auth::user(), 'access_token' => $accessToken]);
+        return response()->json(['user' => new UserResource(Auth::user()), 'access_token' => $accessToken]);
     }
 }
