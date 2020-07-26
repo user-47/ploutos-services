@@ -25,7 +25,25 @@ class TradeTest extends TestCase
         $this->assertEquals(245000, $trade->exchangeAmount);
     }
 
-    private function createTrade()
+    /** @test */
+    public function accepting_trade_by_same_user_throws_error()
+    {
+        $this->expectExceptionMessage("Can not accept a trade you originated.");
+        $trade = $this->createTrade();
+        $trade->accept($trade->user, 1000);
+    }
+
+    /** @test */
+    public function accepting_none_open_or_none_partial_trade_throws_error()
+    {
+        $this->expectExceptionMessage("Can not accept a trade that is not open or partially filled.");
+        $trade = $this->createTrade();
+        $trade->status = Trade::STATUS_FULFILLED;
+        $trade->save();
+        $trade->accept(factory(User::class)->create(), 1000);
+    }
+
+    private function createTrade(): Trade
     {
         Trade::create([
             'user_id' => (factory(User::class)->create())->id,

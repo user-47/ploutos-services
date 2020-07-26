@@ -44,7 +44,7 @@ class TradeControllerTest extends TestCase
     public function a_trade_request_can_be_placed()
     {
         $user = factory(User::class)->create();
-        
+
         $response = $this->actingAs($user, 'api')
             ->postJson('api/v1/trades', $this->validTradeData());
 
@@ -60,15 +60,45 @@ class TradeControllerTest extends TestCase
     }
 
     /** @test */
-    public function a_list_of_trades_can_be_viewed()
+    public function can_view_paginated_list_of_trades()
     {
-        $users = factory(User::class, 3)->create();
-        factory(Trade::class, 10)->create(['user_id' => $users->random()->id,]);
+        factory(Trade::class, 10)->create(['user_id' => (factory(User::class)->create())->id,]);
 
-        $response = $this->getJson('api/v1/trades');
+        $response = $this->getJson('api/v1/trades?size=5');
 
-        $response->assertStatus(200);
-        $response->assertJsonCount(10);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'user',
+                        'amount',
+                        'from_currency',
+                        'to_currency',
+                        'rate',
+                        'status',
+                        'created_at',
+                    ]
+                ],
+                'links' => [
+                    'first',
+                    'last',
+                    'prev',
+                    'next',
+                ],
+                'meta' => [
+                    'current_page',
+                    'from',
+                    'last_page',
+                    'path',
+                    'per_page',
+                    'to',
+                    'total',
+                ]
+            ]);
+        
+        $this->assertEquals(10, $response['meta']['total']);
+        $this->assertCount(5, $response['data']);
     }
 
     /** @test */
@@ -79,6 +109,24 @@ class TradeControllerTest extends TestCase
         $trade = Trade::first();
 
         $response = $this->actingAs($seller, 'api')
+            ->postJson("api/v1/trades/$trade->uuid/accept", [
+                'amount' => 1000,
+            ]);
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function a_none_open_trade_request_cannot_be_accepted()
+    {
+        $seller = factory(User::class)->create();
+        $buyer = factory(User::class)->create();
+        $seller->trades()->create($this->validTradeData());
+        $trade = Trade::first();
+        $trade->status = Trade::STATUS_FULFILLED;
+        $trade->save();
+
+        $response = $this->actingAs($buyer, 'api')
             ->postJson("api/v1/trades/$trade->uuid/accept", [
                 'amount' => 1000,
             ]);

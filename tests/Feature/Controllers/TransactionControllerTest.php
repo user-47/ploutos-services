@@ -15,6 +15,40 @@ class TransactionControllerTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
+    public function a_transaction_cannot_be_accepted_by_the_same_user()
+    {
+        $seller = factory(User::class)->create();
+        $buyer = factory(User::class)->create();
+        $seller->trades()->create($this->validTradeData());
+        $trade = Trade::first();
+        $trade->accept($buyer, 1000);
+        $transaction = Transaction::first();
+
+        $response = $this->actingAs($buyer, 'api')
+                        ->postJson("api/v1/transactions/$transaction->uuid/accept");
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function a_none_open_transaction_cannot_be_accepted()
+    {
+        $seller = factory(User::class)->create();
+        $buyer = factory(User::class)->create();
+        $seller->trades()->create($this->validTradeData());
+        $trade = Trade::first();
+        $trade->accept($buyer, 1000);
+        $transaction = Transaction::first();
+        $transaction->status = Transaction::STATUS_ACCEPTED;
+        $transaction->save();
+
+        $response = $this->actingAs($seller, 'api')
+                        ->postJson("api/v1/transactions/$transaction->uuid/accept");
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
     public function a_transaction_can_be_accepted()
     {
         $seller = factory(User::class)->create();
@@ -22,7 +56,7 @@ class TransactionControllerTest extends TestCase
         $seller->trades()->create($this->validTradeData());
         $trade = Trade::first();
         $trade->accept($buyer, 1000);
-        $transaction =  Transaction::first();
+        $transaction = Transaction::first();
 
         $response = $this->actingAs($seller, 'api')
                         ->postJson("api/v1/transactions/$transaction->uuid/accept");

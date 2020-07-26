@@ -13,7 +13,8 @@ class AcceptTrade extends FormRequest
      */
     public function authorize()
     {
-        return request()->trade->user_id != request()->user()->id;
+        // Authorize if user did not create the trade and the trade is open or partially filled
+        return request()->trade->user_id != request()->user()->id && request()->trade->isAcceptable;
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\TradeTransactionsAccepted;
 use App\Traits\UuidModel;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -89,6 +90,14 @@ class Transaction extends Model
     }
 
     /**
+     * Check if tranaction is open.
+     */
+    public function getIsOpenAttribute(): bool
+    {
+        return $this->status == self::STATUS_OPEN;
+    }
+
+    /**
      * Get the payer of the transaction.
      */
     public function getPayerAttribute(): User
@@ -170,6 +179,14 @@ class Transaction extends Model
      */
     public function accept(User $seller): Transaction
     {
+        if ($this->buyer->id == $seller->id) {
+            throw new Exception("Can not accept a transaction you originated.");
+        }
+
+        if (!$this->isOpen) {
+            throw new Exception("Can not accept a transaction that is not open.");
+        }
+
         $this->status = Transaction::STATUS_ACCEPTED;
         $this->save();
 

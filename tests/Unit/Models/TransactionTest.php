@@ -53,7 +53,25 @@ class TransactionTest extends TestCase
         $this->assertEquals($transaction->currency, $transaction->paymentCurrency);
     }
 
-    private function createTransaction($attributes = [])
+    /** @test */
+    public function accepting_transaction_by_same_user_throws_error()
+    {
+        $this->expectExceptionMessage("Can not accept a transaction you originated.");
+        $transaction = $this->createTransaction();
+        $transaction->accept($transaction->buyer);
+    }
+
+    /** @test */
+    public function accepting_none_open_transaction_throws_error()
+    {
+        $this->expectExceptionMessage("Can not accept a transaction that is not open.");
+        $transaction = $this->createTransaction();
+        $transaction->status = Transaction::STATUS_ACCEPTED;
+        $transaction->save();
+        $transaction->accept($transaction->seller);
+    }
+
+    private function createTransaction($attributes = []): Transaction
     {
         $seller = factory(User::class)->create();
 
