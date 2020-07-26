@@ -19,22 +19,13 @@ class TransactionControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-
-        $this->actingAs($seller, 'api')
-            ->postJson('api/v1/trades', $this->validTradeData());
-        
+        $seller->trades()->create($this->validTradeData());
         $trade = Trade::first();
-
-        $this->actingAs($buyer, 'api')
-            ->postJson("api/v1/trades/$trade->uuid/accept", [
-                'amount' => 1000,
-            ]);
-
+        $trade->accept($buyer, 1000);
         $transaction =  Transaction::first();
 
         $response = $this->actingAs($seller, 'api')
                         ->postJson("api/v1/transactions/$transaction->uuid/accept");
-
         $transaction->refresh();
 
         $response->assertStatus(201);

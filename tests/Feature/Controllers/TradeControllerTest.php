@@ -44,6 +44,7 @@ class TradeControllerTest extends TestCase
     public function a_trade_request_can_be_placed()
     {
         $user = factory(User::class)->create();
+        
         $response = $this->actingAs($user, 'api')
             ->postJson('api/v1/trades', $this->validTradeData());
 
@@ -64,7 +65,6 @@ class TradeControllerTest extends TestCase
         $users = factory(User::class, 3)->create();
         factory(Trade::class, 10)->create(['user_id' => $users->random()->id,]);
 
-
         $response = $this->getJson('api/v1/trades');
 
         $response->assertStatus(200);
@@ -75,10 +75,7 @@ class TradeControllerTest extends TestCase
     public function a_trade_request_cannot_be_accepted_by_the_same_user()
     {
         $seller = factory(User::class)->create();
-
-        $this->actingAs($seller, 'api')
-            ->postJson('api/v1/trades', $this->validTradeData());
-        
+        $seller->trades()->create($this->validTradeData());
         $trade = Trade::first();
 
         $response = $this->actingAs($seller, 'api')
@@ -94,10 +91,7 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-
-        $this->actingAs($seller, 'api')
-            ->postJson('api/v1/trades', $this->validTradeData());
-        
+        $seller->trades()->create($this->validTradeData());
         $trade = Trade::first();
 
         $response = $this->actingAs($buyer, 'api')
@@ -113,10 +107,7 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-
-        $this->actingAs($seller, 'api')
-            ->postJson('api/v1/trades', $this->validTradeData());
-        
+        $seller->trades()->create($this->validTradeData());
         $trade = Trade::first();
 
         $response = $this->actingAs($buyer, 'api')
@@ -132,10 +123,7 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-
-        $this->actingAs($seller, 'api')
-            ->postJson('api/v1/trades', $this->validTradeData());
-        
+        $seller->trades()->create($this->validTradeData());
         $trade = Trade::first();
 
         $response = $this->actingAs($buyer, 'api')
