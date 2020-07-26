@@ -70,7 +70,6 @@ class TradeControllerTest extends TestCase
     /** @test */
     public function a_list_of_trades_can_be_viewed()
     {
-        $this->withoutExceptionHandling();
         $users = factory(User::class, 3)->create();
         factory(Trade::class, 10)->create(['user_id' => $users->random()->id,]);
 
@@ -85,9 +84,82 @@ class TradeControllerTest extends TestCase
     }
 
     /** @test */
+    public function a_trade_request_cannot_be_accepted_by_the_same_user()
+    {
+        $seller = factory(User::class)->create();
+
+        $this->withHeaders([
+                'Accept' => 'application/json',
+            ])
+            ->actingAs($seller, 'api')
+            ->post('api/v1/trades', $this->validTradeData());
+        
+        $trade = Trade::first();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])
+        ->actingAs($seller, 'api')
+        ->post("api/v1/trades/$trade->uuid/accept", [
+            'amount' => 1000,
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function a_trade_request_cannot_be_accepted_with_zero_amount()
+    {
+        $seller = factory(User::class)->create();
+        $buyer = factory(User::class)->create();
+
+        $this->withHeaders([
+                'Accept' => 'application/json',
+            ])
+            ->actingAs($seller, 'api')
+            ->post('api/v1/trades', $this->validTradeData());
+        
+        $trade = Trade::first();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])
+        ->actingAs($buyer, 'api')
+        ->post("api/v1/trades/$trade->uuid/accept", [
+            'amount' => 0,
+        ]);
+
+        $response->assertJsonValidationErrors('amount');
+    }
+
+    /** @test */
+    public function a_trade_request_cannot_be_accepted_with_amount_greater_than_trade_amount()
+    {
+        $seller = factory(User::class)->create();
+        $buyer = factory(User::class)->create();
+
+        $this->withHeaders([
+                'Accept' => 'application/json',
+            ])
+            ->actingAs($seller, 'api')
+            ->post('api/v1/trades', $this->validTradeData());
+        
+        $trade = Trade::first();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])
+        ->actingAs($buyer, 'api')
+        ->post("api/v1/trades/$trade->uuid/accept", [
+            'amount' => 1001,
+        ]);
+
+        $response->assertJsonValidationErrors('amount');
+    }
+
+    /** @test */
     public function a_trade_request_can_be_accepted()
     {
-        $this->withoutExceptionHandling();
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
 
@@ -108,6 +180,9 @@ class TradeControllerTest extends TestCase
         ]);
 
         $response->assertStatus(201);
+
+        $trade->refresh();
+        $this->assertEquals(Trade::STATUS_FULFILLED, $trade->status);
 
         $transaction =  Transaction::first();
         $this->assertEquals($trade->id, $transaction->trade_id);

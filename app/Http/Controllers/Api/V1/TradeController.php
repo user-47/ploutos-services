@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AcceptTrade;
 use App\Http\Requests\NewTrade;
 use App\Models\Trade;
 use App\Models\Transaction;
@@ -32,10 +33,10 @@ class TradeController extends Controller
     /**
      * Accept a trade request
      * 
-     * @param Request $request
+     * @param AcceptTrade $request
      * @return Response
      */
-    public function accept(Trade $trade, Request $request)
+    public function accept(Trade $trade, AcceptTrade $request)
     {
         return $trade->accept($request->user(), $request->amount);
     }

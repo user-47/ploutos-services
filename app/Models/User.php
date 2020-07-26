@@ -44,13 +44,35 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = Hash::make($value);
-    }
+    ///////////////////
+    // RELATIONSHIPS //
+    ///////////////////
 
+    /**
+     * Get the trades for the user.
+     */
     public function trades() : HasMany
     {
         return $this->hasMany(Trade::class);
     }
+
+    //////////////
+    // MUTATORS //
+    //////////////
+
+    /**
+     * Encrypt password value before saving.
+     */
+    public function setPasswordAttribute($value): void
+    {
+        $this->attributes['password'] = Hash::make($value);
+    }
+
+    ////////////
+    // SCOPES //
+    ////////////
+
+    /////////////
+    // METHODS //
+    /////////////
 }

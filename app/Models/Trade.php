@@ -24,13 +24,47 @@ class Trade extends Model
         'user_id',
     ];
 
+    ///////////////////
+    // RELATIONSHIPS //
+    ///////////////////
+
+    /**
+     * Get the transactions for the trade.
+     */
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
     }
 
-    public function accept(User $buyer, int $amount)
+    //////////////
+    // MUTATORS //
+    //////////////
+
+    /**
+     * Get exchange amount.
+     */
+    public function getExchangeAmountAttribute():int
     {
+        return $this->rate * $this->amount;
+    }
+
+    ////////////
+    // SCOPES //
+    ////////////
+
+    /////////////
+    // METHODS //
+    /////////////
+
+    /**
+     * Mark a trade as fulfilled or partial depending on amount offered.
+     * Creates a buy transaction for the trade.
+     */
+    public function accept(User $buyer, int $amount): Transaction
+    {
+        $this->status = self::STATUS_FULFILLED;
+        $this->save();
+
         return $this->transactions()->create([
             'seller_id' => $this->user_id,
             'buyer_id' => $buyer->id,

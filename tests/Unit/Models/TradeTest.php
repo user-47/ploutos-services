@@ -14,6 +14,19 @@ class TradeTest extends TestCase
     /** @test */
     public function a_new_trade_is_open()
     {
+        $trade = $this->createTrade();
+        $this->assertEquals(Trade::STATUS_OPEN, $trade->status);
+    }
+
+    /** @test */
+    public function a_trade_has_exchange_amount()
+    {
+        $trade = $this->createTrade();
+        $this->assertEquals(245000, $trade->exchangeAmount);
+    }
+
+    private function createTrade()
+    {
         Trade::create([
             'user_id' => (factory(User::class)->create())->id,
             'amount' => 1000,
@@ -22,6 +35,6 @@ class TradeTest extends TestCase
             'rate'  => 245
         ]);
 
-        $this->assertEquals(Trade::STATUS_OPEN, Trade::first()->status);
+        return Trade::first();
     }
 }
