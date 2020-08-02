@@ -68,6 +68,11 @@ class User extends Authenticatable
         $this->attributes['password'] = Hash::make($value);
     }
 
+    public function getIsAuthUserAttribute()
+    {
+        return auth()->user() && auth()->user()->id == $this->id;
+    }
+
     ////////////
     // SCOPES //
     ////////////

@@ -6,9 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AcceptTrade;
 use App\Http\Requests\NewTrade;
 use App\Http\Resources\TradeCollection;
+use App\Http\Resources\TradeRescource;
 use App\Models\Trade;
-use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TradeController extends Controller
 {
@@ -30,7 +31,8 @@ class TradeController extends Controller
      */
     public function store(NewTrade $request)
     {
-        return $request->user()->trades()->create($request->validated());
+        $trade = $request->user()->trades()->create($request->validated());
+        return response()->json(new TradeRescource($trade->fresh()), Response::HTTP_CREATED);
     }
 
     /**
@@ -41,6 +43,6 @@ class TradeController extends Controller
      */
     public function accept(Trade $trade, AcceptTrade $request)
     {
-        return $trade->accept($request->user(), $request->amount);
+        return response()->json(new TradeRescource($trade->accept($request->user(), $request->amount)->trade), Response::HTTP_CREATED);
     }
 }

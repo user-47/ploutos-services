@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class TransactionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,13 +16,13 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->uuid,
-            'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
-            'username' => $this->username,
-            $this->mergeWhen($this->isAuthUser, [
-                'email' => $this->email,
-                'phone_number' => $this->phone_number,
-            ]),
+            'seller' => new UserResource($this->seller),
+            'buyer' => new UserResource($this->buyer),
+            'trade' => $this->trade->uuid,
+            'amount' => $this->amount,
+            'currency' => $this->currency,
+            'type' => $this->type,
+            'status' => $this->status,
             'created_at' => $this->created_at->toDateTimeString(),
         ];
     }

@@ -48,15 +48,26 @@ class TradeControllerTest extends TestCase
         $response = $this->actingAs($user, 'api')
             ->postJson('api/v1/trades', $this->validTradeData());
 
-        $response->assertStatus(201);
+        $response->assertStatus(201)
+            ->assertJsonStructure([
+                'id',
+                'user',
+                'amount',
+                'from_currency',
+                'to_currency',
+                'rate',
+                'status',
+                'created_at',
+            ])
+            ->assertJson([
+                'amount' => 1000,
+                'from_currency' => 'cad',
+                'to_currency' => 'ngn',
+                'rate' => 245,
+                'status' => Trade::STATUS_OPEN,
+            ]);
+
         $this->assertCount(1, Trade::all());
-
-        $trade = Trade::first();
-
-        $this->assertEquals(1000, $trade->amount);
-        $this->assertEquals('cad', $trade->from_currency);
-        $this->assertEquals('ngn', $trade->to_currency);
-        $this->assertEquals(245, $trade->rate);
     }
 
     /** @test */
@@ -99,6 +110,20 @@ class TradeControllerTest extends TestCase
         
         $this->assertEquals(10, $response['meta']['total']);
         $this->assertCount(5, $response['data']);
+    }
+
+    /** @test */
+    public function only_authenticated_users_can_accept_a_trade_request()
+    {
+        $seller = factory(User::class)->create();
+        $seller->trades()->create($this->validTradeData());
+        $trade = Trade::first();
+
+        $response = $this->postJson("api/v1/trades/$trade->uuid/accept", [
+                'amount' => 1000,
+            ]);
+
+        $response->assertStatus(401);
     }
 
     /** @test */
@@ -179,18 +204,42 @@ class TradeControllerTest extends TestCase
                 'amount' => 1000,
             ]);
 
-        $response->assertStatus(201);
+        $response->assertStatus(201)
+            ->assertJsonStructure([
+                'id',
+                'user',
+                'amount',
+                'from_currency',
+                'to_currency',
+                'rate',
+                'status',
+                'created_at',
+                'transactions' => [
+                    '*' => [
+                        'id',
+                        'seller',
+                        'buyer',
+                        'amount',
+                        'currency',
+                        'type',
+                        'status'
+                    ]
+                ]
+            ])
+            ->assertJsonCount(1, 'transactions')
+            ->assertJson([
+                'status' => Trade::STATUS_FULFILLED,
+            ]);
 
-        $trade->refresh();
-        $this->assertEquals(Trade::STATUS_FULFILLED, $trade->status);
+        $transaction = $response->json('transactions')[0];
 
-        $transaction =  Transaction::first();
-        $this->assertEquals($trade->id, $transaction->trade_id);
-        $this->assertEquals($trade->user_id, $transaction->seller_id);
-        $this->assertEquals($buyer->id, $transaction->buyer_id);
-        $this->assertEquals(1000, $transaction->amount);
-        $this->assertEquals($trade->from_currency, $transaction->currency);
-        $this->assertEquals(Transaction::TYPE_BUY, $transaction->type);
+        $this->assertEquals($trade->uuid, $transaction['trade']);
+        $this->assertEquals($trade->user->uuid, $transaction['seller']['id']);
+        $this->assertEquals($buyer->uuid, $transaction['buyer']['id']);
+        $this->assertEquals(1000, $transaction['amount']);
+        $this->assertEquals($trade->from_currency, $transaction['currency']);
+        $this->assertEquals(Transaction::TYPE_BUY, $transaction['type']);
+        $this->assertEquals(Transaction::STATUS_OPEN, $transaction['status']);
     }
 
     private function validTradeData()

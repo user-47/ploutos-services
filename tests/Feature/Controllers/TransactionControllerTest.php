@@ -15,6 +15,21 @@ class TransactionControllerTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
+    public function only_authenticated_users_can_accept_a_transaction()
+    {
+        $seller = factory(User::class)->create();
+        $buyer = factory(User::class)->create();
+        $seller->trades()->create($this->validTradeData());
+        $trade = Trade::first();
+        $trade->accept($buyer, 1000);
+        $transaction = Transaction::first();
+
+        $response = $this->postJson("api/v1/transactions/$transaction->uuid/accept");
+
+        $response->assertStatus(401);
+    }
+
+    /** @test */
     public function a_transaction_cannot_be_accepted_by_the_same_user()
     {
         $seller = factory(User::class)->create();
@@ -60,19 +75,51 @@ class TransactionControllerTest extends TestCase
 
         $response = $this->actingAs($seller, 'api')
                         ->postJson("api/v1/transactions/$transaction->uuid/accept");
-        $transaction->refresh();
 
-        $response->assertStatus(201);
-        $this->assertCount(2, Transaction::all());
-        $this->assertEquals(Transaction::STATUS_ACCEPTED, $transaction->status);
+        $response->assertStatus(201)
+            ->assertJsonStructure([
+                'id',
+                'user',
+                'amount',
+                'from_currency',
+                'to_currency',
+                'rate',
+                'status',
+                'created_at',
+                'transactions' => [
+                    '*' => [
+                        'id',
+                        'seller',
+                        'buyer',
+                        'amount',
+                        'currency',
+                        'type',
+                        'status'
+                    ]
+                ]
+            ])
+            ->assertJsonCount(2, 'transactions')
+            ->assertJson([
+                'status' => Trade::STATUS_FULFILLED,
+            ]);
 
-        $correspondingTransaction = Transaction::find(2);
+        $transaction = $response->json('transactions')[0];
+        $correspondingTransaction = $response->json('transactions')[1];
 
-        $this->assertEquals($transaction->isBuy ? Transaction::TYPE_SELL : Transaction::TYPE_BUY, $correspondingTransaction->type);
-        $this->assertEquals($transaction->trade->from_currency, $correspondingTransaction->currency);
-        $this->assertEquals(Transaction::STATUS_ACCEPTED, $correspondingTransaction->status);
-        $this->assertEquals($buyer->id, $correspondingTransaction->buyer_id);
-        $this->assertEquals($seller->id, $correspondingTransaction->seller_id);
+        $this->assertEquals($trade->uuid, $transaction['trade']);
+        $this->assertEquals($trade->user->uuid, $transaction['seller']['id']);
+        $this->assertEquals($buyer->uuid, $transaction['buyer']['id']);
+        $this->assertEquals(1000, $transaction['amount']);
+        $this->assertEquals($trade->from_currency, $transaction['currency']);
+        $this->assertEquals(Transaction::TYPE_BUY, $transaction['type']);
+        $this->assertEquals(Transaction::STATUS_ACCEPTED, $transaction['status']);
+
+        $this->assertEquals($seller->uuid, $correspondingTransaction['seller']['id']);
+        $this->assertEquals($buyer->uuid, $correspondingTransaction['buyer']['id']);
+        $this->assertEquals($trade->from_currency, $correspondingTransaction['currency']);
+        $this->assertEquals(Transaction::STATUS_ACCEPTED, $correspondingTransaction['status']);
+        $this->assertEquals(Transaction::TYPE_SELL, $correspondingTransaction['type']);
+
 
         $this->assertCount(2, Payment::all());
         

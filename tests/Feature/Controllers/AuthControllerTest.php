@@ -39,8 +39,6 @@ class AuthControllerTest extends TestCase
                     'first_name',
                     'last_name',
                     'username',
-                    'email',
-                    'phone_number',
                     'created_at',
                 ], 
                 'access_token',
@@ -50,8 +48,6 @@ class AuthControllerTest extends TestCase
                     'first_name' => 'John',
                     'last_name' => 'Doe',
                     'username' => 'johndoe',
-                    'email' => 'john.doe@mail.com',
-                    'phone_number' => '0000000000',
                 ]
             ]);
         

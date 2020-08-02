@@ -23,6 +23,9 @@ class TradeRescource extends JsonResource
             'rate' => $this->rate,
             'status' => $this->status,
             'created_at' => $this->created_at->toDateTimeString(),
+            'transactions' => $this->transactions->map(function($transaction) {
+                return new TransactionResource($transaction);
+            })->toArray(),
         ];
     }
 }
