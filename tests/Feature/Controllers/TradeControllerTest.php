@@ -41,6 +41,38 @@ class TradeControllerTest extends TestCase
     }
 
     /** @test */
+    public function a_trade_request_must_use_supported_currencies()
+    {
+        $user = factory(User::class)->create();
+        $response = $this->actingAs($user, 'api')
+            ->postJson('api/v1/trades', [
+                'amount' => 1000,
+                'from_currency' => 'random',
+                'to_currency' => 'veryrandom',
+                'rate'  => 230
+            ]);
+
+        $response->assertJsonValidationErrors('from_currency');
+        $response->assertJsonValidationErrors('to_currency');
+    }
+
+    /** @test */
+    public function a_trade_request_must_use_different_currencies()
+    {
+        $user = factory(User::class)->create();
+        $response = $this->actingAs($user, 'api')
+            ->postJson('api/v1/trades', [
+                'amount' => 1000,
+                'from_currency' => 'ngn',
+                'to_currency' => 'ngn',
+                'rate'  => 230
+            ]);
+
+        $response->assertJsonValidationErrors('from_currency');
+        $response->assertJsonValidationErrors('to_currency');
+    }
+
+    /** @test */
     public function a_trade_request_can_be_placed()
     {
         $user = factory(User::class)->create();

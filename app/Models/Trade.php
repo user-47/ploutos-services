@@ -31,6 +31,23 @@ class Trade extends Model
         'user_id',
     ];
 
+    protected static function booted()
+    {
+        static::saving(function (Trade $trade) {
+
+            // Prevent saving a trade with invalid currencies
+            $availableCurrencies = collect(Currency::AVAILABLE_CURRENCIES);
+            if (!$availableCurrencies->contains(strtolower($trade->from_currency)) || !$availableCurrencies->contains(strtolower($trade->to_currency))) {
+                throw new Exception("Invalid currencies");
+            }
+
+            // Prevent saving a trade with the same from and to currency
+            if (strtolower($trade->from_currency) == strtolower($trade->to_currency)) {
+                throw new Exception("Can not place a trade with the same currency");
+            }
+        });
+    }
+
     ///////////////////
     // RELATIONSHIPS //
     ///////////////////

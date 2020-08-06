@@ -19,6 +19,22 @@ class TradeTest extends TestCase
     }
 
     /** @test */
+    public function a_trade_can_have_only_supported_currencies()
+    {
+        $this->expectExceptionMessage("Invalid currencies");
+        $this->createTrade(['from_currency' => 'random', 'to_currency' => 'veryrandom']);
+        $this->assertCount(0, Trade::all());
+    }
+
+    /** @test */
+    public function a_trade_can_not_have_same_currencies()
+    {
+        $this->expectExceptionMessage("Can not place a trade with the same currency");
+        $this->createTrade(['from_currency' => 'ngn', 'to_currency' => 'ngn']);
+        $this->assertCount(0, Trade::all());
+    }
+
+    /** @test */
     public function a_trade_has_exchange_amount()
     {
         $trade = $this->createTrade();
@@ -43,15 +59,15 @@ class TradeTest extends TestCase
         $trade->accept(factory(User::class)->create(), 1000);
     }
 
-    private function createTrade(): Trade
+    private function createTrade($attributes = []): Trade
     {
-        Trade::create([
+        Trade::create(array_merge([
             'user_id' => (factory(User::class)->create())->id,
             'amount' => 1000,
             'from_currency' => 'cad',
             'to_currency' => 'ngn',
             'rate'  => 245
-        ]);
+        ], $attributes));
 
         return Trade::first();
     }

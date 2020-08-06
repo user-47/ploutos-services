@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Currency;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class NewTrade extends FormRequest
 {
@@ -25,9 +27,9 @@ class NewTrade extends FormRequest
     {
         return [
             'amount'            => 'required|numeric|min:0.1',
-            'from_currency'     => 'required|string',
+            'from_currency'     => ['required', 'string', Rule::in(Currency::AVAILABLE_CURRENCIES), 'different:to_currency'],
             'rate'              => 'required|numeric|min:0.1',
-            'to_currency'       => 'required|string',
+            'to_currency'       => ['required', 'string', Rule::in(Currency::AVAILABLE_CURRENCIES), 'different:from_currency'],
         ];
     }
 }
