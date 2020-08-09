@@ -71,6 +71,26 @@ class TransactionTest extends TestCase
         $transaction->accept($transaction->seller);
     }
 
+    /** @test */
+    public function a_transaction_can_be_rejected()
+    {
+        $transaction = $this->createTransaction();
+        $transaction->reject();
+        $this->assertEquals(Transaction::STATUS_REJECTED, $transaction->status);
+    }
+
+    /** @test */
+    public function a_none_open_transaction_can_not_be_rejected()
+    {
+        $this->expectExceptionMessage("Can not reject a transaction that is not open.");
+        $transaction = $this->createTransaction();
+        $transaction->status = Transaction::STATUS_ACCEPTED;
+        $transaction->save();
+        $transaction->reject();
+        $this->assertEquals(Transaction::STATUS_ACCEPTED, $transaction->status);
+    }
+
+
     private function createTransaction($attributes = []): Transaction
     {
         $seller = factory(User::class)->create();

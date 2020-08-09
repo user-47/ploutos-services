@@ -30,8 +30,8 @@ class AcceptTrade extends FormRequest
                 'numeric', 
                 'min:0.1',
                 function($attribute, $value, $fail) {
-                    if ($value > request()->trade->amount) {
-                        $fail($attribute . ' is greater than trade amount.');
+                    if ($value > request()->trade->availableAmount) {
+                        $fail($attribute . ' is greater than available trade amount.');
                     }
                 }
             ],

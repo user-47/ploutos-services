@@ -7,7 +7,10 @@ use App\Http\Requests\AcceptTrade;
 use App\Http\Requests\NewTrade;
 use App\Http\Resources\TradeCollection;
 use App\Http\Resources\TradeRescource;
+use App\Http\Resources\TransactionCollection;
+use App\Http\Resources\TransactionResource;
 use App\Models\Trade;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -43,6 +46,31 @@ class TradeController extends Controller
      */
     public function accept(Trade $trade, AcceptTrade $request)
     {
-        return response()->json(new TradeRescource($trade->accept($request->user(), $request->amount)->trade), Response::HTTP_CREATED);
+        try {
+            $transaction = $trade->accept($request->user(), $request->amount);
+            return response()->json([
+                'trade' => new TradeRescource($transaction->trade),
+                'transaction' => new TransactionResource($transaction->refresh()),
+            ], Response::HTTP_CREATED);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Error accepting trade.',
+                'errors' => [
+                    'request' => $e->getMessage()
+                ]
+            ], Response::HTTP_PRECONDITION_FAILED);
+        }
+    }
+
+    /**
+     * Return a trade's transactions
+     * 
+     * @return Response
+     */
+    public function transactions(Trade $trade, Request $request)
+    {
+        $sizeLimit = 100;
+        $size = min($request->input('size', 10), $sizeLimit);
+        return new TransactionCollection($trade->transactions()->user($request->user())->paginate($size));
     }
 }

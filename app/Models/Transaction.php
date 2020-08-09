@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\TradeTransactionsAccepted;
+use App\Events\TradeTransactionsRejected;
 use App\Traits\UuidModel;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,11 @@ class Transaction extends Model
     const STATUS_PAID = 'paid';
     const STATUS_REJECTED = 'rejected';
     const STATUS_CANCELLED = 'cancelled';
+
+    const STATUS_CLOSED = [
+        self::STATUS_ACCEPTED,
+        self::STATUS_PAID
+    ];
 
     protected $uuidPrefix = 'txn';
 
@@ -148,6 +154,39 @@ class Transaction extends Model
     }
 
     /**
+     * Scope a query to only include open transactions.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeOpen($query)
+    {
+        return $query->where('status', self::STATUS_OPEN);
+    }
+
+    /**
+     * Scope a query to only include accepted and paid transactions.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeClosed($query)
+    {
+        return $query->whereIn('status', self::STATUS_CLOSED);
+    }
+
+    /**
+     * Scope a query to only include rejected transactions.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeRejected($query)
+    {
+        return $query->where('status', self::STATUS_REJECTED);
+    }
+
+    /**
      * Scope a query to only include sell transactions.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
@@ -167,6 +206,42 @@ class Transaction extends Model
     public function scopeWithoutPayment($query)
     {
         return $query->whereDoesntHave('payments');
+    }
+
+    /**
+     * Scope a query to only include transactions where user is buyer.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeBuyer($query, User $user)
+    {
+        return $query->where('buyer_id', $user->id);
+    }
+
+    /**
+     * Scope a query to only include transactions where user is seller.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSeller($query, User $user)
+    {
+        return $query->where('seller_id', $user->id);
+    }
+
+    /**
+     * Scope a query to only include transactions where user is buyer or seller.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeUser($query, User $user)
+    {
+        return $query->where(function($q) use ($user) {
+            return $q->where('seller_id', $user->id)
+                ->orWhere('buyer_id', $user->id);
+        });
     }
 
     /////////////
@@ -197,6 +272,21 @@ class Transaction extends Model
         event(new TradeTransactionsAccepted($this->trade));
 
         return $transaction;
+    }
+
+    /**
+     * Mark transaction as rejected
+     */
+    public function reject()
+    {
+        if (!$this->isOpen) {
+            throw new Exception("Can not reject a transaction that is not open.");
+        }
+
+        $this->status = Transaction::STATUS_REJECTED;
+        $this->save();
+
+        event(new TradeTransactionsRejected($this));
     }
 
     /**

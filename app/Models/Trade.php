@@ -61,6 +61,46 @@ class Trade extends Model
     }
 
     /**
+     * Get accepted or paid transactions
+     */
+    public function acceptedTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class)->closed();
+    }
+
+    /**
+     * Get all offer transactions
+     */
+    public function offers()
+    {
+        return $this->hasMany(Transaction::class)->buy();
+    }
+
+    /**
+     * Get accepted or paid offer transactions
+     */
+    public function acceptedOffers(): HasMany
+    {
+        return $this->hasMany(Transaction::class)->buy()->closed();
+    }
+
+    /**
+     * Get open or paid offer transactions
+     */
+    public function openOffers(): HasMany
+    {
+        return $this->hasMany(Transaction::class)->buy()->open();
+    }
+
+    /**
+     * Get rejected offer transactions
+     */
+    public function rejectedOffers(): HasMany
+    {
+        return $this->hasMany(Transaction::class)->buy()->rejected();
+    }
+
+    /**
      * Get the user that owns the trade.
      */
     public function user(): BelongsTo
@@ -71,6 +111,14 @@ class Trade extends Model
     //////////////
     // MUTATORS //
     //////////////
+
+    /**
+     * Get offer amount still open for acceptance
+     */
+    public function getAvailableAmountAttribute()
+    {
+        return $this->amount - $this->acceptedOffers->sum('amount');
+    }
 
     /**
      * Get exchange amount.
@@ -86,6 +134,14 @@ class Trade extends Model
     public function getIsAcceptableAttribute()
     {
         return collect(self::STATUS_OPEN_VALUES)->contains($this->status);
+    }
+
+    /**
+     * Check is trade is fulfilled
+     */
+    public function getIsFulfilledAttribute()
+    {
+        return $this->status == self::STATUS_FULFILLED;
     }
 
     ////////////
@@ -110,8 +166,13 @@ class Trade extends Model
             throw new Exception("Can not accept a trade that is not open or partially filled.");
         }
 
-        $this->status = self::STATUS_FULFILLED;
-        $this->save();
+        if ($amount > $this->availableAmount) {
+            throw new Exception("Can not accept with an offer amount gretter than the outstanding requested amount");
+        }
+
+        if ($buyer->hasOpenOffer($this)) {
+            throw new Exception("Can not accept trade when you still have an offer open.");
+        }
 
         return $this->transactions()->create([
             'seller_id' => $this->user_id,

@@ -20,7 +20,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\TradeTransactionsAccepted' => [
             'App\Listeners\CreateTradeTransactionsPayments',
-        ]
+            'App\Listeners\UpdateAcceptedTradeTransactions',
+        ],
+        'App\Events\TradeTransactionsRejected' => [
+        ],
     ];
 
     /**

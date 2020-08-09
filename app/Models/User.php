@@ -80,4 +80,12 @@ class User extends Authenticatable
     /////////////
     // METHODS //
     /////////////
+
+    /**
+     * Returns true if user has open offer for trade
+     */
+    public function hasOpenOffer(Trade $trade)
+    {
+        return $trade->openOffers()->buyer($this)->count() > 0;
+    }
 }
