@@ -40,6 +40,8 @@ Route::group(['namespace' => 'Api\V1\\'], function() {
         Route::post('/transactions/{transaction}/accept', 'TransactionController@accept');
     });
 
+    // CURRENCIES
+    Route::get('/currencies', 'CurrencyController@index');
 
     // TRADES
     Route::get('/trades', 'TradeController@index');
