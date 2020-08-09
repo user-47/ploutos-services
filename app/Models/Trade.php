@@ -148,6 +148,28 @@ class Trade extends Model
     // SCOPES //
     ////////////
 
+    /**
+     * Limit query to only open or partial trades
+     * 
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeAcceptable($query)
+    {
+        return $query->whereIn('status', self::STATUS_OPEN_VALUES);
+    }
+
+    /**
+     * Limit query to only open trades
+     * 
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeOpen($query)
+    {
+        return $query->where('status', self::STATUS_OPEN);
+    }
+
     /////////////
     // METHODS //
     /////////////

@@ -16,6 +16,6 @@ $factory->define(Trade::class, function (Faker $faker) {
         'amount' => $faker->numberBetween(100, 500000),
         'from_currency' => $fromCurrency,
         'to_currency' => $toCurrency,
-        'rate'  => $faker->numberBetween(50, 500)
+        'rate'  => $faker->numberBetween(50, 500),
     ];
 });

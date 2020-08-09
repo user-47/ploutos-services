@@ -107,7 +107,7 @@ class TradeControllerTest extends TestCase
     {
         factory(Trade::class, 10)->create(['user_id' => (factory(User::class)->create())->id,]);
 
-        $response = $this->getJson('api/v1/trades?size=5');
+        $response = $this->getJson('api/v1/trades?limit=5');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -142,6 +142,30 @@ class TradeControllerTest extends TestCase
         
         $this->assertEquals(10, $response['meta']['total']);
         $this->assertCount(5, $response['data']);
+    }
+
+    /** @test */
+    public function can_view_paginated_list_of_trades_with_filters()
+    {
+        factory(Trade::class, 5)->create(['user_id' => (factory(User::class)->create())->id, 'status' => Trade::STATUS_OPEN]);
+        factory(Trade::class, 3)->create(['user_id' => (factory(User::class)->create())->id, 'status' => Trade::STATUS_PARTIAL]);
+        factory(Trade::class, 7)->create(['user_id' => (factory(User::class)->create())->id, 'status' => Trade::STATUS_FULFILLED]);
+        factory(Trade::class, 10)->create(['user_id' => (factory(User::class)->create())->id, 'status' => Trade::STATUS_CANCELLED]);
+
+        $response = $this->getJson('api/v1/trades?limit=5&status=open');
+        $this->assertEquals(5, $response['meta']['total']);
+
+        $response = $this->getJson('api/v1/trades?limit=5&status=open,partial');
+        $this->assertEquals(8, $response['meta']['total']);
+
+        $response = $this->getJson('api/v1/trades?limit=5&status=cancelled,fulfilled');
+        $this->assertEquals(17, $response['meta']['total']);
+
+        $response = $this->getJson('api/v1/trades?limit=5&from_currency=cad');
+        $this->assertEquals(Trade::acceptable()->where('from_currency', 'cad')->count(), $response['meta']['total']);
+
+        $response = $this->getJson('api/v1/trades?limit=5&to_currency=cad');
+        $this->assertEquals(Trade::acceptable()->whereIn('to_currency', ['cad'])->count(), $response['meta']['total']);
     }
 
     /** @test */
