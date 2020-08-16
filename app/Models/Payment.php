@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\UuidModel;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -67,4 +68,16 @@ class Payment extends Model
     /////////////
     // METHODS //
     /////////////
+
+    /**
+     * Mark a payment as paid.
+     */
+    public function markAsPaid()
+    {
+        if ($this->status != self::STATUS_DRAFT) {
+            throw new Exception("Can not mark a non draft payment as paid");
+        }
+        $this->status = self::STATUS_PAID;
+        $this->save();
+    }
 }
