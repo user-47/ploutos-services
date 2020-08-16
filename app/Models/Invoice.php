@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Traits\UuidModel;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -22,6 +24,16 @@ class Invoice extends Model
         'user_id',
         'amount',
         'currency',
+    ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'due_date',
+        'paid_at',
     ];
 
     /**
@@ -57,9 +69,28 @@ class Invoice extends Model
     // RELATIONSHIPS //
     ///////////////////
 
+    /**
+     * Get the transaction for this invoice.
+     */
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class);
+    }
+
     //////////////
     // MUTATORS //
     //////////////
+
+    /**
+     * Get the invoice for the reference transaction of the transaction of this invoice.
+     */
+    public function getreferenceInvoiceAttribute(): ?Invoice
+    {
+        if ($referenceTransaction = $this->transaction->referenceTransaction) {
+            return $referenceTransaction->invoices()->latest()->first();
+        }
+        return null;
+    }
 
     ////////////
     // SCOPES //
@@ -78,6 +109,19 @@ class Invoice extends Model
             throw new Exception("Can not mark a non draft invoice as paid");
         }
         $this->status = self::STATUS_PAID;
+        $this->paid_at = Carbon::now();
+        $this->save();
+
+        $this->referenceInvoice->setDueDate();
+    }
+
+    /**
+     * Set the due date of the invoice
+     */
+    public function setDueDate()
+    {
+        // Todo:: determin business rule for this. Can be made configurable.
+        $this->due_date = $this->referenceInvoice->paid_at->addHour();
         $this->save();
     }
 }

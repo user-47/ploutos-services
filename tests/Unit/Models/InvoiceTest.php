@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\Invoice;
 use App\Models\Trade;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -28,6 +29,7 @@ class InvoiceTest extends TestCase
         $invoices = $this->setupInvoices();
         $invoices[0]->markAsPaid();
         $this->assertEquals(Invoice::STATUS_PAID, $invoices[0]->status);
+        $this->assertNotNull($invoices[0]->paid_at);
     }
 
     /** @test */
@@ -45,6 +47,16 @@ class InvoiceTest extends TestCase
 
         $invoices[1]->refresh()->markAsPaid();
         $this->assertEquals(Invoice::STATUS_CANCELLED, $invoices[1]->status);
+    }
+
+    /** @test */
+    public function a_paid_invoice_sets_a_due_date_for_the_reference_invoice()
+    {
+        $invoice = $this->setupInvoices()->first();
+        $invoice->markAsPaid();
+        $dueDate = $invoice->paid_at->addHour();
+        $this->assertNotNull($invoice->referenceInvoice->due_date);
+        $this->assertTrue($dueDate->equalTo($invoice->referenceInvoice->due_date));
     }
 
     private function setupInvoices($attributes = []): Collection

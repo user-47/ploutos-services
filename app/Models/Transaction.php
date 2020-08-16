@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Transaction extends Model
@@ -57,6 +58,14 @@ class Transaction extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * Get the invoices for the transaction.
+     */
+    public function referenceTransaction(): HasOne
+    {
+        return $this->hasOne(Transaction::class, 'reference_transaction_id');
     }
 
     /**
@@ -267,7 +276,11 @@ class Transaction extends Model
 
         $transaction = $this->replicate();
         $transaction->type = $this->isBuy ? Transaction::TYPE_SELL : Transaction::TYPE_BUY;
+        $transaction->reference_transaction_id = $this->id;
         $transaction->save();
+
+        $this->reference_transaction_id = $transaction->id;
+        $this->save();
 
         event(new TradeTransactionsAccepted($this->trade));
 
