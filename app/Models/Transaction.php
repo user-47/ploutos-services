@@ -52,11 +52,11 @@ class Transaction extends Model
     }
 
     /**
-     * Get the payments for the transaction.
+     * Get the invoices for the transaction.
      */
-    public function payments(): HasMany
+    public function invoices(): HasMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Invoice::class);
     }
 
     /**
@@ -114,7 +114,7 @@ class Transaction extends Model
     /**
      * Get amount to be paid.
      */
-    public function getPaymentAmountAttribute(): int
+    public function getInvoiceAmountAttribute(): int
     {
         return $this->isBuy ? $this->trade->rate * $this->amount : $this->amount;
     }
@@ -122,7 +122,7 @@ class Transaction extends Model
     /**
      * Get currency to be paid in.
      */
-    public function getPaymentCurrencyAttribute(): string
+    public function getInvoiceCurrencyAttribute(): string
     {
         return $this->isBuy ? $this->trade->to_currency : $this->currency;
     }
@@ -198,14 +198,14 @@ class Transaction extends Model
     }
 
     /**
-     * Scope a query to only include transactions without payment.
+     * Scope a query to only include transactions without invoice.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeWithoutPayment($query)
+    public function scopeWithoutInvoice($query)
     {
-        return $query->whereDoesntHave('payments');
+        return $query->whereDoesntHave('invoices');
     }
 
     /**
@@ -290,14 +290,14 @@ class Transaction extends Model
     }
 
     /**
-     * Creates payment for transaction.
+     * Creates invoice for transaction.
      */
-    public function createPayment()
+    public function createInvoice()
     {
-        $this->payments()->create([
+        $this->invoices()->create([
             'user_id' => $this->payer->id,
-            'currency' => $this->paymentCurrency,
-            'amount' => $this->paymentAmount,
+            'currency' => $this->invoiceCurrency,
+            'amount' => $this->invoiceAmount,
         ]);
     }
 }

@@ -6,7 +6,7 @@ use App\Events\TradeTransactionsAccepted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class CreateTradeTransactionsPayments
+class CreateTradeTransactionsInvoices
 {
     /**
      * Create the event listener.
@@ -26,8 +26,8 @@ class CreateTradeTransactionsPayments
      */
     public function handle(TradeTransactionsAccepted $event)
     {
-        foreach($event->trade->transactions()->accepted()->withoutPayment()->get() as $transaction) {
-            $transaction->createPayment();
+        foreach($event->trade->transactions()->accepted()->withoutInvoice()->get() as $transaction) {
+            $transaction->createInvoice();
         }
     }
 }

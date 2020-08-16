@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Controllers;
 
-use App\Models\Payment;
+use App\Models\Invoice;
 use App\Models\Trade;
 use App\Models\Transaction;
 use App\Models\User;
@@ -126,19 +126,19 @@ class TransactionControllerTest extends TestCase
         $this->assertEquals(Transaction::TYPE_SELL, $correspondingTransaction->type);
 
 
-        $this->assertCount(2, Payment::all());
+        $this->assertCount(2, Invoice::all());
 
-        $payment1 = Payment::find(1);
-        $payment2 = Payment::find(2);
+        $invoice1 = Invoice::find(1);
+        $invoice2 = Invoice::find(2);
 
-        $this->assertEquals(Payment::STATUS_DRAFT, $payment1->status);
-        $this->assertEquals(Payment::STATUS_DRAFT, $payment2->status);
-        $this->assertNull($payment1->paid_at);
-        $this->assertNull($payment2->paid_at);
-        $this->assertNotEquals($payment1->user_id, $payment2->user_id);
-        $this->assertNotEquals($payment1->currency, $payment2->currency);
-        $this->assertNotEquals($payment1->transaction_id, $payment2->transaction_id);
-        $this->assertNotEquals($payment1->reference_no, $payment2->reference_no);
+        $this->assertEquals(Invoice::STATUS_DRAFT, $invoice1->status);
+        $this->assertEquals(Invoice::STATUS_DRAFT, $invoice2->status);
+        $this->assertNull($invoice1->paid_at);
+        $this->assertNull($invoice2->paid_at);
+        $this->assertNotEquals($invoice1->user_id, $invoice2->user_id);
+        $this->assertNotEquals($invoice1->currency, $invoice2->currency);
+        $this->assertNotEquals($invoice1->transaction_id, $invoice2->transaction_id);
+        $this->assertNotEquals($invoice1->reference_no, $invoice2->reference_no);
     }
 
     private function validTradeData()

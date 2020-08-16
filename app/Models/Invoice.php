@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Payment extends Model
+class Invoice extends Model
 {
     use UuidModel, SoftDeletes;
 
@@ -70,12 +70,12 @@ class Payment extends Model
     /////////////
 
     /**
-     * Mark a payment as paid.
+     * Mark an invoice as paid.
      */
     public function markAsPaid()
     {
         if ($this->status != self::STATUS_DRAFT) {
-            throw new Exception("Can not mark a non draft payment as paid");
+            throw new Exception("Can not mark a non draft invoice as paid");
         }
         $this->status = self::STATUS_PAID;
         $this->save();

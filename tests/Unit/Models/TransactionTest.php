@@ -30,27 +30,27 @@ class TransactionTest extends TestCase
     }
 
     /** @test */
-    public function a_transaction_has_payment_amount()
+    public function a_transaction_has_invoice_amount()
     {
         $transaction = $this->createTransaction();
         $trade = $transaction->trade;
-        $this->assertEquals($trade->rate * $transaction->amount, $transaction->paymentAmount);
+        $this->assertEquals($trade->rate * $transaction->amount, $transaction->invoiceAmount);
 
         $transaction = $this->createTransaction(['type' => Transaction::TYPE_SELL]);
         $trade = $transaction->trade;
-        $this->assertEquals($transaction->amount, $transaction->paymentAmount);
+        $this->assertEquals($transaction->amount, $transaction->invoiceAmount);
     }
 
     /** @test */
-    public function a_transaction_has_payment_currency()
+    public function a_transaction_has_invoice_currency()
     {
         $transaction = $this->createTransaction();
         $trade = $transaction->trade;
-        $this->assertEquals($trade->to_currency, $transaction->paymentCurrency);
+        $this->assertEquals($trade->to_currency, $transaction->invoiceCurrency);
 
         $transaction = $this->createTransaction(['type' => Transaction::TYPE_SELL]);
         $trade = $transaction->trade;
-        $this->assertEquals($transaction->currency, $transaction->paymentCurrency);
+        $this->assertEquals($transaction->currency, $transaction->invoiceCurrency);
     }
 
     /** @test */
