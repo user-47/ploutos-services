@@ -126,10 +126,11 @@ class TransactionControllerTest extends TestCase
         $this->assertEquals(Transaction::TYPE_SELL, $correspondingTransaction->type);
 
 
-        $this->assertCount(2, Invoice::all());
+        $invoices = Invoice::all();
+        $this->assertCount(2, $invoices);
 
-        $invoice1 = Invoice::find(1);
-        $invoice2 = Invoice::find(2);
+        $invoice1 = $invoices->first();
+        $invoice2 = $invoices->last();
 
         $this->assertEquals(Invoice::STATUS_DRAFT, $invoice1->status);
         $this->assertEquals(Invoice::STATUS_DRAFT, $invoice2->status);

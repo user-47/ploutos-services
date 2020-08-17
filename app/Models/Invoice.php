@@ -19,6 +19,7 @@ class Invoice extends Model
     const STATUS_FAILED ='failed';
     const STATUS_CANCELLED ='cancelled';
     const STATUS_REFUNDED ='refunded';
+    const STATUS_PAST_DUE = 'past_due';
 
     protected $fillable = [
         'user_id',
@@ -96,6 +97,17 @@ class Invoice extends Model
     // SCOPES //
     ////////////
 
+    /**
+     * Scope a query to only include draft invoices.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeDraft($query)
+    {
+        return $query->where('status', self::STATUS_DRAFT);
+    }
+
     /////////////
     // METHODS //
     /////////////
@@ -113,6 +125,24 @@ class Invoice extends Model
         $this->save();
 
         $this->referenceInvoice->setDueDate();
+    }
+
+    /**
+     * Mark an invoice as paid.
+     */
+    public function markAsPastDue()
+    {
+        if ($this->status != self::STATUS_DRAFT) {
+            throw new Exception("Can not mark a non draft invoice as past due");
+        }
+        $this->status = self::STATUS_PAST_DUE;
+        $this->save();
+
+        // Todo:: raise past due event
+        // listener to notifier both buyer and seller
+        // set transaction as cancelled
+        // listener to refund the reference invoice paid
+        // set paid transaction status as refunded
     }
 
     /**

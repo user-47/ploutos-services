@@ -14,7 +14,7 @@ class AddReferenceTransactionIdToTransactionsTable extends Migration
     public function up()
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->integer('reference_transaction_id')->nullable()->unsigned();
+            $table->foreignId('reference_transaction_id')->nullable();
             $table->foreign('reference_transaction_id')->references('id')->on('transactions');
         });
     }
