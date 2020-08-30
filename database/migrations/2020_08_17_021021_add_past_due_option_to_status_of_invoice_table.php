@@ -1,12 +1,13 @@
 <?php
 
+use App\Traits\AltersEnumMigtationTrait;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class AddPastDueOptionToStatusOfInvoiceTable extends Migration
 {
+    use AltersEnumMigtationTrait;
     /**
      * Run the migrations.
      *
@@ -15,7 +16,7 @@ class AddPastDueOptionToStatusOfInvoiceTable extends Migration
     public function up()
     {
         Schema::table('invoices', function (Blueprint $table) {
-            DB::statement("ALTER TABLE invoices MODIFY COLUMN status ENUM('draft', 'paid', 'failed', 'cancelled', 'refunded', 'past_due') default 'draft'");
+            $this->alterEnum('invoices', 'status', ['draft', 'paid', 'failed', 'cancelled', 'refunded', 'past_due'], 'draft');
         });
     }
 
@@ -27,7 +28,7 @@ class AddPastDueOptionToStatusOfInvoiceTable extends Migration
     public function down()
     {
         Schema::table('invoices', function (Blueprint $table) {
-            DB::statement("ALTER TABLE invoices MODIFY COLUMN status ENUM('draft', 'paid', 'failed', 'cancelled', 'refunded') default 'draft'");
+            $this->alterEnum('invoices', 'status', ['draft', 'paid', 'failed', 'cancelled', 'refunded'], 'draft');
         });
     }
 }

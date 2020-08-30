@@ -65,7 +65,7 @@ class Trade extends Model
      */
     public function acceptedTransactions(): HasMany
     {
-        return $this->hasMany(Transaction::class)->closed();
+        return $this->hasMany(Transaction::class)->closed()->orderBy('id', 'asc');
     }
 
     /**

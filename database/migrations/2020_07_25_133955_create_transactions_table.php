@@ -25,6 +25,10 @@ class CreateTransactionsTable extends Migration
             $table->enum('status', ['open', 'accepted', 'paid', 'rejected', 'cancelled'])->default('open');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('trade_id')->references('id')->on('trades');
+            $table->foreign('seller_id')->references('id')->on('users');
+            $table->foreign('buyer_id')->references('id')->on('users');
         });
     }
 

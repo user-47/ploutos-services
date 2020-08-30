@@ -24,6 +24,8 @@ class CreateTradesTable extends Migration
             $table->enum('status', ['open', 'partial', 'fulfilled', 'cancelled'])->default('open');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
