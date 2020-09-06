@@ -18,6 +18,7 @@ class Invoice extends Model
     const STATUS_PAID ='paid';
     const STATUS_FAILED ='failed';
     const STATUS_CANCELLED ='cancelled';
+    const STATUS_PARTIAL_REFUND ='partial_refund';
     const STATUS_REFUNDED ='refunded';
     const STATUS_PAST_DUE = 'past_due';
 
@@ -111,6 +112,18 @@ class Invoice extends Model
     /////////////
     // METHODS //
     /////////////
+
+    /**
+     * Mark an invoice as failed.
+     */
+    public function markAsFailed()
+    {
+        if ($this->status != self::STATUS_DRAFT) {
+            throw new Exception("Can not mark a non draft invoice as failed");
+        }
+        $this->status = self::STATUS_FAILED;
+        $this->save();
+    }
 
     /**
      * Mark an invoice as paid.

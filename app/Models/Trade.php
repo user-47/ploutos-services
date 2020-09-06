@@ -73,7 +73,7 @@ class Trade extends Model
      */
     public function offers()
     {
-        return $this->hasMany(Transaction::class)->buy();
+        return $this->hasMany(Transaction::class)->buy()->orderBy('id', 'asc');
     }
 
     /**
