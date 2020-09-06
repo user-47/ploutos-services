@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -72,6 +73,22 @@ class Invoice extends Model
     ///////////////////
 
     /**
+     * Get the payment method used in processing the invoice
+     */
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class);
+    }
+
+    /**
+     * Get the refunds made on this invoice
+     */
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(Refund::class);
+    }
+
+    /**
      * Get the transaction for this invoice.
      */
     public function transaction(): BelongsTo
@@ -79,19 +96,64 @@ class Invoice extends Model
         return $this->belongsTo(Transaction::class);
     }
 
+    /**
+     * Get the user that owns this invoice
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     //////////////
     // MUTATORS //
     //////////////
 
     /**
+     * Checks if the invoice has any successful refunds
+     */
+    public function getHasSuccessfulRefundsAttribute(): bool
+    {
+        return $this->refunds()->successful()->exists();
+    }
+
+    /**
+     * Checks if invoice is in paid state
+     */
+    public function getIsPaidAttribute(): bool
+    {
+        return $this->status == static::STATUS_PAID;
+    }
+
+    /**
      * Get the invoice for the reference transaction of the transaction of this invoice.
      */
-    public function getreferenceInvoiceAttribute(): ?Invoice
+    public function getReferenceInvoiceAttribute(): ?Invoice
     {
         if ($referenceTransaction = $this->transaction->referenceTransaction) {
             return $referenceTransaction->invoices()->latest()->first();
         }
         return null;
+    }
+
+    /**
+     * Checks if the invoice is refundable
+     */
+    public function getRefundableAttribute(): bool
+    {
+        return $this->refundableAmount > 0;
+    }
+
+    /**
+     * Gets the invoice refundable amount
+     */
+    public function getRefundableAmountAttribute(): int
+    {
+        if ($this->isPaid && $this->charge_id) {
+            return $this->hasSuccessfulRefunds
+                        ? $this->refunds()->successful()->latest()->first()->amount_left
+                        : $this->amount_paid;
+        }
+        return 0;
     }
 
     ////////////
@@ -107,6 +169,17 @@ class Invoice extends Model
     public function scopeDraft($query)
     {
         return $query->where('status', self::STATUS_DRAFT);
+    }
+
+    /**
+     * Scope query to only include invoice with payment id = $identifier
+     * 
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeIdentifier($query, $identifier)
+    {
+        return $query->where('payment_id', $identifier);
     }
 
     /////////////

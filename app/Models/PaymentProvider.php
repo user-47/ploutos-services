@@ -30,6 +30,9 @@ class PaymentProvider extends Model
     // RELATIONSHIPS //
     ///////////////////
 
+    /**
+     * Get the users that have accounts with this payment provider
+     */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withPivot(['identifier'])->using(PaymentProviderUser::class)->withTimestamps();
@@ -43,7 +46,13 @@ class PaymentProvider extends Model
     // SCOPES //
     ////////////
 
-    public function scopeProvider($query, $providerName)
+    /**
+     * Scope query to only include payment provider whose name matches given provider name
+     * 
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeProvider($query, string $providerName)
     {
         $provider = self::getPaymentProvider($providerName);
         return $query->where('payment_provider_id', $provider->id);

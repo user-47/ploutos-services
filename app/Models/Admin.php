@@ -22,6 +22,9 @@ class Admin extends Authenticatable
     // RELATIONSHIPS //
     ///////////////////
 
+    /**
+     * Get the refunds initiated by this admin
+     */
     public function refunds(): HasMany
     {
         return $this->hasMany(Refund::class);

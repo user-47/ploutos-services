@@ -19,21 +19,33 @@ class Refund extends Model
     // RELATIONSHIPS //
     ///////////////////
 
+    /**
+     * Get the invoice from which this refund is generated
+     */
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
 
+    /**
+     * Get the user that owns this refund
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the admin that initiated this refund
+     */
     public function admin(): BelongsTo
     {
         return $this->belongsTo(Admin::class);
     }
 
+    /**
+     * Get the payment provider used in processing this refund
+     */
     public function paymentProvider(): BelongsTo
     {
         return $this->belongsTo(PaymentProvider::class);
@@ -47,6 +59,12 @@ class Refund extends Model
     // SCOPES //
     ////////////
 
+    /**
+     * Scope a query to only include successful refunds.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeSuccessful($query)
     {
         return $query->where('status', 'succeeded');

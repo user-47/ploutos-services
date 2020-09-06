@@ -13,11 +13,17 @@ class PaymentProviderUser extends Model
     // RELATIONSHIPS //
     ///////////////////
 
+    /**
+     * Get the payment provider for this account
+     */
     public function paymentProvider(): BelongsTo
     {
         return $this->belongsTo(PaymentProvider::class);
     }
 
+    /**
+     * Get the user that owns this provider account
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -31,11 +37,23 @@ class PaymentProviderUser extends Model
     // SCOPES //
     ////////////
 
+    /**
+     * Scope query to only include payment provider user with identifier = $identifier
+     * 
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeIdentifiedBy($query, $identifier)
     {
         return $query->where('identifier', $identifier);
     }
 
+    /**
+     * Scope query to only include payment provider whose name matches given provider name
+     * 
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeProvider($query, $providerName)
     {
         $provider = PaymentProvider::getPaymentProvider($providerName);

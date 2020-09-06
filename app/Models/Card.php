@@ -15,6 +15,9 @@ class Card extends Model
     // RELATIONSHIPS //
     ///////////////////
 
+    /**
+     * Get the user that owns this card
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -28,6 +31,12 @@ class Card extends Model
     // SCOPES //
     ////////////
 
+    /**
+     * Scope query to only include invoice with payment id = $identifier
+     * 
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeIdentifier($query, $identifier)
     {
         return $query->where('provider_id', $identifier);
