@@ -34,20 +34,25 @@ class AuthControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'user' => [
-                    'id',
-                    'first_name',
-                    'last_name',
-                    'username',
-                    'created_at',
-                ], 
-                'access_token',
+                'success',
+                'data' => [
+                    'user' => [
+                        'id',
+                        'first_name',
+                        'last_name',
+                        'username',
+                        'created_at',
+                    ], 
+                    'access_token',
+                ],
             ])
             ->assertJson([
-                'user' => [
-                    'first_name' => 'John',
-                    'last_name' => 'Doe',
-                    'username' => 'johndoe',
+                'data' => [
+                    'user' => [
+                        'first_name' => 'John',
+                        'last_name' => 'Doe',
+                        'username' => 'johndoe',
+                    ],
                 ]
             ]);
         
@@ -73,25 +78,30 @@ class AuthControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'user' => [
-                    'id',
-                    'first_name',
-                    'last_name',
-                    'username',
-                    'email',
-                    'phone_number',
-                    'created_at',
-                ], 
-                'access_token',
+                'success',
+                'data' => [
+                    'user' => [
+                        'id',
+                        'first_name',
+                        'last_name',
+                        'username',
+                        'email',
+                        'phone_number',
+                        'created_at',
+                    ], 
+                    'access_token',
+                ],
             ])
             ->assertJson([
-                'user' => [
-                    'first_name' => 'John',
-                    'last_name' => 'Doe',
-                    'username' => 'johndoe',
-                    'email' => 'john.doe@mail.com',
-                    'phone_number' => '0000000000',
-                ]
+                'data' => [
+                    'user' => [
+                        'first_name' => 'John',
+                        'last_name' => 'Doe',
+                        'username' => 'johndoe',
+                        'email' => 'john.doe@mail.com',
+                        'phone_number' => '0000000000',
+                    ],
+                ],
             ]);
     }
 }

@@ -53,7 +53,12 @@ class TradeController extends Controller
     public function store(NewTrade $request)
     {
         $trade = (new TradeManager())->create($request->user(), $request->validated());
-        return response()->json(new TradeRescource($trade->fresh()), Response::HTTP_CREATED);
+        return response()->json([
+            'success' => true, 
+            'data' => [
+                'trade' => new TradeRescource($trade->fresh()),
+            ],
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -67,15 +72,19 @@ class TradeController extends Controller
         try {
             $transaction = (new TradeManager())->accept($trade, $request->user(), $request->amount);
             return response()->json([
-                'trade' => new TradeRescource($transaction->trade),
-                'transaction' => new TransactionResource($transaction->refresh()),
+                'success' => true,
+                'data' => [
+                    'trade' => new TradeRescource($transaction->trade),
+                    'transaction' => new TransactionResource($transaction->refresh()),
+                ],
             ], Response::HTTP_CREATED);
         } catch (Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Error accepting trade.',
                 'errors' => [
                     'request' => $e->getMessage()
-                ]
+                ],
             ], Response::HTTP_PRECONDITION_FAILED);
         }
     }

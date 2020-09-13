@@ -69,7 +69,7 @@ class CurrencyManager
 
     /**
      * @param float|int|string $amount
-     * @param float|int $rate
+     * @param float|int|string $rate
      */
     private static function convert($amount, string $from, string $to, $rate, bool $isMinor = true)
     {

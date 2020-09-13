@@ -79,32 +79,37 @@ class TransactionControllerTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonStructure([
-                'trade' => [
-                    'id',
-                    'user',
-                    'amount',
-                    'from_currency',
-                    'to_currency',
-                    'rate',
-                    'status',
-                    'created_at',
-                ],
-                'transaction' => [
-                    'id',
-                    'seller',
-                    'buyer',
-                    'amount',
-                    'currency',
-                    'type',
-                    'status'
+                'success',
+                'data' => [
+                    'trade' => [
+                        'id',
+                        'user',
+                        'amount',
+                        'from_currency',
+                        'to_currency',
+                        'rate',
+                        'status',
+                        'created_at',
+                    ],
+                    'transaction' => [
+                        'id',
+                        'seller',
+                        'buyer',
+                        'amount',
+                        'currency',
+                        'type',
+                        'status'
+                    ],
                 ]
             ])
             ->assertJson([
-                'trade' => [
-                    'status' => Trade::STATUS_FULFILLED,
-                ],
-                'transaction' => [
-                    'status' => Transaction::STATUS_ACCEPTED,
+                'data' => [
+                    'trade' => [
+                        'status' => Trade::STATUS_FULFILLED,
+                    ],
+                    'transaction' => [
+                        'status' => Transaction::STATUS_ACCEPTED,
+                    ],
                 ],
             ]);
         $trade->refresh();

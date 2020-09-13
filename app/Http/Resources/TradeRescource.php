@@ -16,6 +16,9 @@ class TradeRescource extends JsonResource
     public function toArray($request)
     {
         $amountFormats = CurrencyManager::allFormats($this->amount, $this->from_currency);
+        $availableAmountFormats = CurrencyManager::allFormats($this->availableAmount, $this->from_currency);
+        $exchangeAmount = CurrencyManager::convertMinor($this->availableAmount, $this->from_currency, $this->to_currency, $this->rate);
+        $exchangeAmountFormats = CurrencyManager::allFormats($exchangeAmount, $this->to_currency);
         return [
             'id' => $this->uuid,
             'user' => new UserResource($this->user),
@@ -24,9 +27,12 @@ class TradeRescource extends JsonResource
             'from_currency' => $this->from_currency,
             'to_currency' => $this->to_currency,
             'rate' => $this->rate,
+            'exchange_amount' => $exchangeAmountFormats['amount'],
+            'exchange_amount_formats' => $exchangeAmountFormats,
             'status' => $this->status,
             'created_at' => $this->created_at->toDateTimeString(),
-            'available_amount' => $this->availableAmount,
+            'available_amount' => $availableAmountFormats['amount'],
+            'available_amount_formats' => $availableAmountFormats,
             'accepted_offers_count' => $this->acceptedOffers()->count(),
             'open_offers_count' => $this->openOffers()->count(),
             'rejected_offers_count' => $this->rejectedOffers()->count(),

@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use App\Managers\CurrencyManager;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TransactionResource extends JsonResource
+class InvoiceResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,23 +16,19 @@ class TransactionResource extends JsonResource
     public function toArray($request)
     {
         $amountFormats = CurrencyManager::allFormats($this->amount, $this->currency);
-        $invoiceAmountFormats = CurrencyManager::allFormats($this->invoiceAmount, $this->invoiceCurrency);
+        $refundableAmountFormats = CurrencyManager::allFormats($this->refundableAmount, $this->currency);
         return [
             'id' => $this->uuid,
-            'seller' => new UserResource($this->seller),
-            'buyer' => new UserResource($this->buyer),
-            'trade' => $this->trade->uuid,
+            'reference_no' => $this->reference_no,
+            'user' => new UserResource($this->user),
             'amount' => $amountFormats['amount'],
             'amount_formats' => $amountFormats,
             'currency' => $this->currency,
-            'invoice_amount' => $invoiceAmountFormats['amount'],
-            'invoice_amount_formats' => $invoiceAmountFormats,
-            'type' => $this->type,
+            'due_date' => optional($this->due_date)->toDateTimeString(),
             'status' => $this->status,
             'created_at' => $this->created_at->toDateTimeString(),
-            $this->mergeWhen($this->invoice, [
-                'recent_invoice' => new InvoiceResource($this->invoice),
-            ]),
+            'refundable_amount' => $refundableAmountFormats['amount'],
+            'refundable_amount_formats' => $refundableAmountFormats,
         ];
     }
 }

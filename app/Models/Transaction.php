@@ -90,6 +90,14 @@ class Transaction extends Model
     //////////////
 
     /**
+     * Get latest invoice.
+     */
+    public function getInvoiceAttribute(): ?Invoice
+    {
+        return $this->invoices()->orderBy('id', 'desc')->first();
+    }
+
+    /**
      * Check if tranaction is a buy.
      */
     public function getIsBuyAttribute(): bool
@@ -149,17 +157,6 @@ class Transaction extends Model
     ////////////
 
     /**
-     * Scope a query to only include buy transactions.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeBuy($query)
-    {
-        return $query->where('type', self::TYPE_BUY);
-    }
-
-    /**
      * Scope a query to only include accepted transactions.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
@@ -171,14 +168,25 @@ class Transaction extends Model
     }
 
     /**
-     * Scope a query to only include open transactions.
+     * Scope a query to only include buy transactions.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeOpen($query)
+    public function scopeBuy($query)
     {
-        return $query->where('status', self::STATUS_OPEN);
+        return $query->where('type', self::TYPE_BUY);
+    }
+
+    /**
+     * Scope a query to only include transactions where user is buyer.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeBuyer($query, User $user)
+    {
+        return $query->where('buyer_id', $user->id);
     }
 
     /**
@@ -190,6 +198,17 @@ class Transaction extends Model
     public function scopeClosed($query)
     {
         return $query->whereIn('status', self::STATUS_CLOSED);
+    }
+
+    /**
+     * Scope a query to only include open transactions.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeOpen($query)
+    {
+        return $query->where('status', self::STATUS_OPEN);
     }
 
     /**
@@ -215,28 +234,6 @@ class Transaction extends Model
     }
 
     /**
-     * Scope a query to only include transactions without invoice.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeWithoutInvoice($query)
-    {
-        return $query->whereDoesntHave('invoices');
-    }
-
-    /**
-     * Scope a query to only include transactions where user is buyer.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeBuyer($query, User $user)
-    {
-        return $query->where('buyer_id', $user->id);
-    }
-
-    /**
      * Scope a query to only include transactions where user is seller.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
@@ -259,6 +256,17 @@ class Transaction extends Model
             return $q->where('seller_id', $user->id)
                 ->orWhere('buyer_id', $user->id);
         });
+    }
+
+    /**
+     * Scope a query to only include transactions without invoice.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeWithoutInvoice($query)
+    {
+        return $query->whereDoesntHave('invoices');
     }
 
     /////////////
@@ -315,6 +323,11 @@ class Transaction extends Model
      */
     public function createInvoice()
     {
+        //only create invoice if no pending invoice
+        if ($this->invoices()->pending()->count()) {
+            throw new Exception("Can not create invoice for a transaction that has a pending invoice.");
+        }
+
         $this->invoices()->create([
             'user_id' => $this->payer->id,
             'currency' => $this->invoiceCurrency,

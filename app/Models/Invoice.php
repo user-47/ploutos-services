@@ -23,6 +23,11 @@ class Invoice extends Model
     const STATUS_REFUNDED ='refunded';
     const STATUS_PAST_DUE = 'past_due';
 
+    const STATUS_PENDING = [
+        self::STATUS_DRAFT,
+        self::STATUS_PAST_DUE
+    ];
+
     protected $fillable = [
         'user_id',
         'amount',
@@ -180,6 +185,17 @@ class Invoice extends Model
     public function scopeIdentifier($query, $identifier)
     {
         return $query->where('payment_id', $identifier);
+    }
+
+    /**
+     * Scope a query to only include pending invoices.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopePending($query)
+    {
+        return $query->whereIn('status', self::STATUS_PENDING);
     }
 
     /////////////

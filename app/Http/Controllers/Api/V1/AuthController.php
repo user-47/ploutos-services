@@ -22,14 +22,20 @@ class AuthController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        $user = User::create($validatedData); 
+        $user = User::create($validatedData);
 
         // Raise user registered event
         event(new Registered($user));
 
         $accessToken = $user->createToken('authToken')->accessToken;
 
-        return response()->json(['user' => new UserResource($user), 'access_token' => $accessToken]);
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user' => new UserResource($user),
+                'access_token' => $accessToken,
+            ],
+        ]);
     }
 
     public function login(Request $request)
@@ -40,11 +46,20 @@ class AuthController extends Controller
         ]);
 
         if (!Auth::attempt($loginData)) {
-            return response()->json(['message' => 'Invalid credentials']);
+            return response()->json([
+                'success' => false, 
+                'message' => 'Invalid credentials',
+            ]);
         }
 
         $accessToken = Auth::user()->createToken('authToken')->accessToken;
 
-        return response()->json(['user' => new UserResource(Auth::user()), 'access_token' => $accessToken]);
+        return response()->json([
+            'success' => true, 
+            'data' => [
+                'user' => new UserResource(Auth::user()), 
+                'access_token' => $accessToken,
+            ],
+        ]);
     }
 }

@@ -13,6 +13,9 @@ class CurrencyController extends Controller
      */
     public function index(Request $request)
     {
-        return response(['data' => Currency::AVAILABLE_CURRENCIES]);
+        return response([
+            'success' => true, 
+            'data' => Currency::AVAILABLE_CURRENCIES,
+        ]);
     }
 }

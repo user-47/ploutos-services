@@ -83,21 +83,30 @@ class TradeControllerTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonStructure([
-                'id',
-                'user',
-                'amount',
-                'from_currency',
-                'to_currency',
-                'rate',
-                'status',
-                'created_at',
+                'success',
+                'data' => [
+                    'trade' => [
+                        'id',
+                        'user',
+                        'amount',
+                        'from_currency',
+                        'to_currency',
+                        'rate',
+                        'status',
+                        'created_at',
+                    ],
+                ],
             ])
             ->assertJson([
-                'amount' => 1000,
-                'from_currency' => 'cad',
-                'to_currency' => 'ngn',
-                'rate' => 245,
-                'status' => Trade::STATUS_OPEN,
+                'data' => [
+                    'trade' => [
+                        'amount' => 1000,
+                        'from_currency' => 'cad',
+                        'to_currency' => 'ngn',
+                        'rate' => 245,
+                        'status' => Trade::STATUS_OPEN,
+                    ]
+                ],
             ]);
 
         $this->assertCount(1, Trade::all());
@@ -263,35 +272,40 @@ class TradeControllerTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonStructure([
-                'trade' => [
-                    'id',
-                    'user',
-                    'amount',
-                    'from_currency',
-                    'to_currency',
-                    'rate',
-                    'status',
-                    'created_at',
-                    'available_amount',
-                    'accepted_offers_count',
-                    'open_offers_count',
-                    'rejected_offers_count',
-                ],
-                'transaction' => [
-                    'id',
-                    'seller',
-                    'buyer',
-                    'trade',
-                    'amount',
-                    'currency',
-                    'type',
-                    'status',
-                    'created_at'
+                'success',
+                'data' => [
+                    'trade' => [
+                        'id',
+                        'user',
+                        'amount',
+                        'from_currency',
+                        'to_currency',
+                        'rate',
+                        'status',
+                        'created_at',
+                        'available_amount',
+                        'accepted_offers_count',
+                        'open_offers_count',
+                        'rejected_offers_count',
+                    ],
+                    'transaction' => [
+                        'id',
+                        'seller',
+                        'buyer',
+                        'trade',
+                        'amount',
+                        'currency',
+                        'type',
+                        'status',
+                        'created_at'
+                    ],
                 ]
             ])
             ->assertJson([
-                'trade' => [
-                    'status' => Trade::STATUS_OPEN,
+                'data' => [
+                    'trade' => [
+                        'status' => Trade::STATUS_OPEN,
+                    ],
                 ],
             ]);
         $trade->refresh();
@@ -322,13 +336,18 @@ class TradeControllerTest extends TestCase
  
          $response->assertStatus(201)
              ->assertJsonStructure([
-                 'trade',
-                 'transaction',
+                'success',
+                'data' => [
+                    'trade',
+                    'transaction',
+                ],
              ])
              ->assertJson([
-                 'trade' => [
-                     'status' => Trade::STATUS_OPEN,
-                ],
+                'data' => [
+                    'trade' => [
+                        'status' => Trade::STATUS_OPEN,
+                    ],
+                ]
              ]);
          $trade->refresh();
  

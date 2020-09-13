@@ -22,8 +22,11 @@ class TransactionController extends Controller
     {
         $sellTransaction = $transaction->accept($request->user());
         return response()->json([
-            'trade' => new TradeRescource($sellTransaction->trade),
-            'transaction' => new TransactionResource($sellTransaction->refresh()),
+            'success' => true,
+            'data' => [
+                'trade' => new TradeRescource($sellTransaction->trade),
+                'transaction' => new TransactionResource($sellTransaction->refresh()),
+            ],
         ], Response::HTTP_CREATED);
     }
 }
