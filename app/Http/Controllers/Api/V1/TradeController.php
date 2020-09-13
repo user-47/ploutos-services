@@ -9,6 +9,7 @@ use App\Http\Resources\TradeCollection;
 use App\Http\Resources\TradeRescource;
 use App\Http\Resources\TransactionCollection;
 use App\Http\Resources\TransactionResource;
+use App\Managers\TradeManager;
 use App\Models\Trade;
 use Exception;
 use Illuminate\Http\Request;
@@ -51,7 +52,7 @@ class TradeController extends Controller
      */
     public function store(NewTrade $request)
     {
-        $trade = $request->user()->trades()->create($request->validated());
+        $trade = (new TradeManager())->create($request->user(), $request->validated());
         return response()->json(new TradeRescource($trade->fresh()), Response::HTTP_CREATED);
     }
 
@@ -64,7 +65,7 @@ class TradeController extends Controller
     public function accept(Trade $trade, AcceptTrade $request)
     {
         try {
-            $transaction = $trade->accept($request->user(), $request->amount);
+            $transaction = (new TradeManager())->accept($trade, $request->user(), $request->amount);
             return response()->json([
                 'trade' => new TradeRescource($transaction->trade),
                 'transaction' => new TransactionResource($transaction->refresh()),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Managers\CurrencyManager;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TransactionResource extends JsonResource
@@ -14,12 +15,14 @@ class TransactionResource extends JsonResource
      */
     public function toArray($request)
     {
+        $amountFormats = CurrencyManager::allFormats($this->amount, $this->currency);
         return [
             'id' => $this->uuid,
             'seller' => new UserResource($this->seller),
             'buyer' => new UserResource($this->buyer),
             'trade' => $this->trade->uuid,
-            'amount' => $this->amount,
+            'amount' => $amountFormats['amount'],
+            'amount_formats' => $amountFormats,
             'currency' => $this->currency,
             'type' => $this->type,
             'status' => $this->status,

@@ -2,11 +2,12 @@
 
 namespace Tests\Feature\Controllers;
 
+use App\Managers\CurrencyManager;
+use App\Managers\TradeManager;
 use App\Models\Trade;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class TradeControllerTest extends TestCase
@@ -172,7 +173,7 @@ class TradeControllerTest extends TestCase
     public function only_authenticated_users_can_accept_a_trade_request()
     {
         $seller = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
 
         $response = $this->postJson("api/v1/trades/$trade->uuid/accept", [
@@ -186,7 +187,7 @@ class TradeControllerTest extends TestCase
     public function a_trade_request_cannot_be_accepted_by_the_same_user()
     {
         $seller = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
 
         $response = $this->actingAs($seller, 'api')
@@ -202,7 +203,7 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
         $trade->status = Trade::STATUS_FULFILLED;
         $trade->save();
@@ -220,7 +221,7 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
 
         $response = $this->actingAs($buyer, 'api')
@@ -236,7 +237,7 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
 
         $response = $this->actingAs($buyer, 'api')
@@ -252,7 +253,7 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
 
         $response = $this->actingAs($buyer, 'api')
@@ -300,7 +301,7 @@ class TradeControllerTest extends TestCase
         $this->assertEquals($trade->uuid, $transaction->trade->uuid);
         $this->assertEquals($trade->user->uuid, $transaction->seller->uuid);
         $this->assertEquals($buyer->uuid, $transaction->buyer->uuid);
-        $this->assertEquals(1000, $transaction->amount);
+        $this->assertEquals(CurrencyManager::toMinor(1000, 'cad'), $transaction->amount);
         $this->assertEquals($trade->from_currency, $transaction->currency);
         $this->assertEquals(Transaction::TYPE_BUY, $transaction->type);
         $this->assertEquals(Transaction::STATUS_OPEN, $transaction->status);
@@ -311,7 +312,7 @@ class TradeControllerTest extends TestCase
      {
          $seller = factory(User::class)->create();
          $buyer = factory(User::class)->create();
-         $seller->trades()->create($this->validTradeData());
+         (new TradeManager())->create($seller, $this->validTradeData());
          $trade = Trade::first();
  
          $response = $this->actingAs($buyer, 'api')
@@ -336,7 +337,7 @@ class TradeControllerTest extends TestCase
          $this->assertEquals($trade->uuid, $transaction->trade->uuid);
          $this->assertEquals($trade->user->uuid, $transaction->seller->uuid);
          $this->assertEquals($buyer->uuid, $transaction->buyer->uuid);
-         $this->assertEquals(500, $transaction->amount);
+         $this->assertEquals(CurrencyManager::toMinor(500, 'cad'), $transaction->amount);
          $this->assertEquals($trade->from_currency, $transaction->currency);
          $this->assertEquals(Transaction::TYPE_BUY, $transaction->type);
          $this->assertEquals(Transaction::STATUS_OPEN, $transaction->status);
@@ -349,7 +350,7 @@ class TradeControllerTest extends TestCase
         $buyer = factory(User::class)->create();
         $buyer2 = factory(User::class)->create();
         $buyer3 = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
 
         $this->actingAs($buyer, 'api')
@@ -373,9 +374,9 @@ class TradeControllerTest extends TestCase
         $this->assertEquals($buyer->uuid, $trade->openoffers[0]->buyer->uuid);
         $this->assertEquals($buyer2->uuid, $trade->openoffers[1]->buyer->uuid);
         $this->assertEquals($buyer3->uuid, $trade->openoffers[2]->buyer->uuid);
-        $this->assertEquals(1000, $trade->openoffers[0]->amount);
-        $this->assertEquals(500, $trade->openoffers[1]->amount);
-        $this->assertEquals(100, $trade->openoffers[2]->amount);
+        $this->assertEquals(CurrencyManager::toMinor(1000, 'cad'), $trade->openoffers[0]->amount);
+        $this->assertEquals(CurrencyManager::toMinor(500, 'cad'), $trade->openoffers[1]->amount);
+        $this->assertEquals(CurrencyManager::toMinor(100, 'cad'), $trade->openoffers[2]->amount);
     }
 
     /** @test */
@@ -383,7 +384,7 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
 
         $this->actingAs($buyer, 'api')
@@ -400,7 +401,7 @@ class TradeControllerTest extends TestCase
 
         $response->assertJsonValidationErrors('request');
         $this->assertCount(1, $trade->openOffers);
-        $this->assertEquals(700, $trade->openoffers[0]->amount);
+        $this->assertEquals(CurrencyManager::toMinor(700, 'cad'), $trade->openoffers[0]->amount);
     }
 
     /** @test */
@@ -408,9 +409,9 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
-        $trade->accept($buyer, 700);
+        (new TradeManager())->accept($trade, $buyer, 700);
         $trade->openOffers[0]->accept($seller);
 
         $response = $this->actingAs($buyer, 'api')
@@ -426,9 +427,9 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
-        $trade->accept($buyer, 1000);
+        (new TradeManager())->accept($trade, $buyer, 1000);
         $transaction = Transaction::first();
         $transaction->accept($seller);
 
@@ -472,9 +473,9 @@ class TradeControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
-        $trade->accept($buyer, 1000);
+        (new TradeManager())->accept($trade, $buyer, 1000);
         $transaction = Transaction::first();
         $transaction->accept($seller);
 

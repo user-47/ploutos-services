@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\TradeTransactionsAccepted;
 use App\Events\TradeTransactionsRejected;
+use App\Managers\CurrencyManager;
 use App\Traits\UuidModel;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -125,7 +126,14 @@ class Transaction extends Model
      */
     public function getInvoiceAmountAttribute(): int
     {
-        return $this->isBuy ? $this->trade->rate * $this->amount : $this->amount;
+        return $this->isBuy 
+            ? CurrencyManager::convertMinor(
+                $this->amount, 
+                $this->trade->from_currency, 
+                $this->trade->to_currency, 
+                $this->trade->rate
+            ) 
+            : $this->amount;
     }
 
     /**

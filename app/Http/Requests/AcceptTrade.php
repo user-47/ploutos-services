@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Managers\CurrencyManager;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AcceptTrade extends FormRequest
@@ -30,7 +31,8 @@ class AcceptTrade extends FormRequest
                 'numeric', 
                 'min:0.1',
                 function($attribute, $value, $fail) {
-                    if ($value > request()->trade->availableAmount) {
+                    $minorValue = CurrencyManager::toMinor($value, request()->trade->from_currency);
+                    if ($minorValue > request()->trade->availableAmount) {
                         $fail($attribute . ' is greater than available trade amount.');
                     }
                 }

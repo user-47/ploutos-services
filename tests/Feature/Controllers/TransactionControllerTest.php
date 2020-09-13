@@ -2,12 +2,13 @@
 
 namespace Tests\Feature\Controllers;
 
+use App\Managers\CurrencyManager;
+use App\Managers\TradeManager;
 use App\Models\Invoice;
 use App\Models\Trade;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class TransactionControllerTest extends TestCase
@@ -19,9 +20,9 @@ class TransactionControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
-        $trade->accept($buyer, 1000);
+        (new TradeManager())->accept($trade, $buyer, 1000);
         $transaction = Transaction::first();
 
         $response = $this->postJson("api/v1/transactions/$transaction->uuid/accept");
@@ -34,9 +35,9 @@ class TransactionControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
-        $trade->accept($buyer, 1000);
+        (new TradeManager())->accept($trade, $buyer, 1000);
         $transaction = Transaction::first();
 
         $response = $this->actingAs($buyer, 'api')
@@ -50,9 +51,9 @@ class TransactionControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
-        $trade->accept($buyer, 1000);
+        (new TradeManager())->accept($trade, $buyer, 1000);
         $transaction = Transaction::first();
         $transaction->status = Transaction::STATUS_ACCEPTED;
         $transaction->save();
@@ -68,9 +69,9 @@ class TransactionControllerTest extends TestCase
     {
         $seller = factory(User::class)->create();
         $buyer = factory(User::class)->create();
-        $seller->trades()->create($this->validTradeData());
+        (new TradeManager())->create($seller, $this->validTradeData());
         $trade = Trade::first();
-        $trade->accept($buyer, 1000);
+        (new TradeManager())->accept($trade, $buyer, 1000);
         $transaction = Transaction::first();
 
         $response = $this->actingAs($seller, 'api')
@@ -114,7 +115,7 @@ class TransactionControllerTest extends TestCase
         $this->assertEquals($trade->uuid, $transaction->trade->uuid);
         $this->assertEquals($trade->user->uuid, $transaction->seller->uuid);
         $this->assertEquals($buyer->uuid, $transaction->buyer->uuid);
-        $this->assertEquals(1000, $transaction->amount);
+        $this->assertEquals(CurrencyManager::toMinor(1000, $transaction->currency), $transaction->amount);
         $this->assertEquals($trade->from_currency, $transaction->currency);
         $this->assertEquals(Transaction::TYPE_BUY, $transaction->type);
         $this->assertEquals(Transaction::STATUS_ACCEPTED, $transaction->status);
@@ -140,6 +141,9 @@ class TransactionControllerTest extends TestCase
         $this->assertNotEquals($invoice1->currency, $invoice2->currency);
         $this->assertNotEquals($invoice1->transaction_id, $invoice2->transaction_id);
         $this->assertNotEquals($invoice1->reference_no, $invoice2->reference_no);
+
+        $this->assertEquals(CurrencyManager::toMinor(1000, 'cad'), $invoice1->amount);
+        $this->assertEquals(CurrencyManager::toMinor(1000*245, 'ngn'), $invoice2->amount);
     }
 
     private function validTradeData()
