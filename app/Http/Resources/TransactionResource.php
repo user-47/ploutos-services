@@ -15,18 +15,16 @@ class TransactionResource extends JsonResource
      */
     public function toArray($request)
     {
-        $amountFormats = CurrencyManager::allFormats($this->amount, $this->currency);
-        $invoiceAmountFormats = CurrencyManager::allFormats($this->invoiceAmount, $this->invoiceCurrency);
         return [
             'id' => $this->uuid,
             'seller' => new UserResource($this->seller),
             'buyer' => new UserResource($this->buyer),
             'trade' => $this->trade->uuid,
-            'amount' => $amountFormats['amount'],
-            'amount_formats' => $amountFormats,
+            'trade_amount' => CurrencyManager::allFormats($this->amount, $this->currency),
             'currency' => $this->currency,
-            'invoice_amount' => $invoiceAmountFormats['amount'],
-            'invoice_amount_formats' => $invoiceAmountFormats,
+            'invoice_amount' => CurrencyManager::allFormats($this->invoiceAmount, $this->invoiceCurrency),
+            'transaction_amount' => CurrencyManager::allFormats($this->transactionAmount, $this->invoiceCurrency),
+            'transaction_fee' => CurrencyManager::allFormats($this->transactionFee, $this->invoiceCurrency),
             'type' => $this->type,
             'status' => $this->status,
             'created_at' => $this->created_at->toDateTimeString(),

@@ -98,6 +98,22 @@ class Transaction extends Model
     }
 
     /**
+     * Get amount to be paid.
+     */
+    public function getInvoiceAmountAttribute(): int
+    {
+        return $this->transactionAmount + $this->transactionFee;
+    }
+
+    /**
+     * Get currency to be paid in.
+     */
+    public function getInvoiceCurrencyAttribute(): string
+    {
+        return $this->isBuy ? $this->trade->to_currency : $this->currency;
+    }
+
+    /**
      * Check if tranaction is a buy.
      */
     public function getIsBuyAttribute(): bool
@@ -130,9 +146,9 @@ class Transaction extends Model
     }
 
     /**
-     * Get amount to be paid.
+     * Get transaction amount to be exchanged.
      */
-    public function getInvoiceAmountAttribute(): int
+    public function getTransactionAmountAttribute(): int
     {
         return $this->isBuy 
             ? CurrencyManager::convertMinor(
@@ -145,11 +161,18 @@ class Transaction extends Model
     }
 
     /**
-     * Get currency to be paid in.
+     * Get fee to be paid.
      */
-    public function getInvoiceCurrencyAttribute(): string
+    public function getTransactionFeeAttribute(): int
     {
-        return $this->isBuy ? $this->trade->to_currency : $this->currency;
+        return $this->isBuy 
+            ? CurrencyManager::convertMinor(
+                $this->fee, 
+                $this->trade->from_currency, 
+                $this->trade->to_currency, 
+                $this->trade->rate
+            ) 
+            : $this->fee;
     }
 
     ////////////

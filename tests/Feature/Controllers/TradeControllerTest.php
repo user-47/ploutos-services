@@ -88,7 +88,7 @@ class TradeControllerTest extends TestCase
                     'trade' => [
                         'id',
                         'user',
-                        'amount',
+                        'trade_amount',
                         'from_currency',
                         'to_currency',
                         'rate',
@@ -100,7 +100,6 @@ class TradeControllerTest extends TestCase
             ->assertJson([
                 'data' => [
                     'trade' => [
-                        'amount' => 1000,
                         'from_currency' => 'cad',
                         'to_currency' => 'ngn',
                         'rate' => 245,
@@ -125,7 +124,7 @@ class TradeControllerTest extends TestCase
                     '*' => [
                         'id',
                         'user',
-                        'amount',
+                        'trade_amount',
                         'from_currency',
                         'to_currency',
                         'rate',
@@ -277,7 +276,7 @@ class TradeControllerTest extends TestCase
                     'trade' => [
                         'id',
                         'user',
-                        'amount',
+                        'trade_amount',
                         'from_currency',
                         'to_currency',
                         'rate',
@@ -293,7 +292,7 @@ class TradeControllerTest extends TestCase
                         'seller',
                         'buyer',
                         'trade',
-                        'amount',
+                        'transaction_amount',
                         'currency',
                         'type',
                         'status',
@@ -462,7 +461,7 @@ class TradeControllerTest extends TestCase
                         'id',
                         'seller',
                         'buyer',
-                        'amount',
+                        'transaction_amount',
                         'currency',
                         'type',
                         'status',

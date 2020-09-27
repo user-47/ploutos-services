@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Managers\CurrencyManager;
 use App\Traits\UuidModel;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -125,7 +126,7 @@ class Trade extends Model
      */
     public function getExchangeAmountAttribute():int
     {
-        return $this->rate * $this->amount;
+        return CurrencyManager::convertMinor($this->availableAmount, $this->from_currency, $this->to_currency, $this->rate);
     }
 
     /**

@@ -84,7 +84,7 @@ class TransactionControllerTest extends TestCase
                     'trade' => [
                         'id',
                         'user',
-                        'amount',
+                        'trade_amount',
                         'from_currency',
                         'to_currency',
                         'rate',
@@ -95,7 +95,7 @@ class TransactionControllerTest extends TestCase
                         'id',
                         'seller',
                         'buyer',
-                        'amount',
+                        'transaction_amount',
                         'currency',
                         'type',
                         'status'
