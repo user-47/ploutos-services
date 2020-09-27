@@ -33,12 +33,10 @@ class TransactionTest extends TestCase
     public function a_transaction_has_invoice_amount()
     {
         $transaction = $this->createTransaction();
-        $trade = $transaction->trade;
-        $this->assertEquals($trade->rate * $transaction->amount, $transaction->invoiceAmount);
+        $this->assertEquals($transaction->transactionAmount + $transaction->transactionFee, $transaction->invoiceAmount);
 
         $transaction = $this->createTransaction(['type' => Transaction::TYPE_SELL]);
-        $trade = $transaction->trade;
-        $this->assertEquals($transaction->amount, $transaction->invoiceAmount);
+        $this->assertEquals($transaction->transactionAmount + $transaction->transactionFee, $transaction->invoiceAmount);
     }
 
     /** @test */

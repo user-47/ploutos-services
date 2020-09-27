@@ -16,7 +16,7 @@ class CurrencyManager
      */
     public static function toMinor($amount, string $currency): int
     {
-        $money = Money::of($amount, strtoupper($currency));
+        $money = Money::of($amount, strtoupper($currency), null, RoundingMode::UP);
         return $money->getMinorAmount()->toInt();
     }
 

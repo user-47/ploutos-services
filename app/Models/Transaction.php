@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Events\TradeTransactionsAccepted;
 use App\Events\TradeTransactionsRejected;
 use App\Managers\CurrencyManager;
+use App\RulesEngine\Engines\TransactionFeeEngine;
 use App\Traits\UuidModel;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +41,14 @@ class Transaction extends Model
         'currency',
         'type',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function (Transaction $transaction) {
+            $transactionFeeEngine = new TransactionFeeEngine();
+            $transactionFeeEngine->execute($transaction);
+        });
+    }
 
     ///////////////////
     // RELATIONSHIPS //

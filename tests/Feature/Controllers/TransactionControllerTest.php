@@ -147,8 +147,8 @@ class TransactionControllerTest extends TestCase
         $this->assertNotEquals($invoice1->transaction_id, $invoice2->transaction_id);
         $this->assertNotEquals($invoice1->reference_no, $invoice2->reference_no);
 
-        $this->assertEquals(CurrencyManager::toMinor(1000, 'cad'), $invoice1->amount);
-        $this->assertEquals(CurrencyManager::toMinor(1000*245, 'ngn'), $invoice2->amount);
+        $this->assertEquals($invoice1->transaction->transactionAmount + $invoice1->transaction->transactionFee, $invoice1->amount);
+        $this->assertEquals($invoice2->transaction->transactionAmount + $invoice2->transaction->transactionFee, $invoice2->amount);
     }
 
     private function validTradeData()

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "95655a36f23870c7b5deb1366193dc8f",
+    "content-hash": "941240e0e0a084bdbeed13ec0a133337",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1110,6 +1110,52 @@
                 "url"
             ],
             "time": "2019-07-01T23:21:34+00:00"
+        },
+        {
+            "name": "kamermans/docblock-reflection",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kamermans/docblock-reflection.git",
+                "reference": "fde5e73a8bdddf491edd82e60f4b629d6cd4453d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kamermans/docblock-reflection/zipball/fde5e73a8bdddf491edd82e60f4b629d6cd4453d",
+                "reference": "fde5e73a8bdddf491edd82e60f4b629d6cd4453d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "fabpot/php-cs-fixer": "^1.11",
+                "php": ">=5.4",
+                "phpunit/phpunit": "~4.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "kamermans\\Reflection\\": "src/",
+                    "kamermans\\Reflection\\Test\\": "test/src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MPL"
+            ],
+            "authors": [
+                {
+                    "name": "Steve Kamerman",
+                    "email": "stevekamerman@gmail.com"
+                },
+                {
+                    "name": "Christan Sciberras",
+                    "email": "christian@sciberras.me"
+                }
+            ],
+            "description": "Simple, Fast PHP DocBlock Parser / Reflector",
+            "time": "2016-03-22T01:34:01+00:00"
         },
         {
             "name": "laminas/laminas-diactoros",
@@ -3431,6 +3477,55 @@
             "time": "2020-05-20T17:43:50+00:00"
         },
         {
+            "name": "symfony/expression-language",
+            "version": "v3.1.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/expression-language.git",
+                "reference": "581138880e70a99712c31be894af4b7a57198915"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/expression-language/zipball/581138880e70a99712c31be894af4b7a57198915",
+                "reference": "581138880e70a99712c31be894af4b7a57198915",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\ExpressionLanguage\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony ExpressionLanguage Component",
+            "homepage": "https://symfony.com",
+            "time": "2017-01-02T20:31:54+00:00"
+        },
+        {
             "name": "symfony/finder",
             "version": "v5.1.2",
             "source": {
@@ -4850,6 +4945,56 @@
             "description": "CssToInlineStyles is a class that enables you to convert HTML-pages/files into HTML-pages/files with inline styles. This is very useful when you're sending emails.",
             "homepage": "https://github.com/tijsverkoyen/CssToInlineStyles",
             "time": "2019-10-24T08:53:34+00:00"
+        },
+        {
+            "name": "uuf6429/rune",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/uuf6429/rune.git",
+                "reference": "4dd28e97762d8557007715b968bcedfd1bbd87a4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/uuf6429/rune/zipball/4dd28e97762d8557007715b968bcedfd1bbd87a4",
+                "reference": "4dd28e97762d8557007715b968bcedfd1bbd87a4",
+                "shasum": ""
+            },
+            "require": {
+                "kamermans/docblock-reflection": "~1.0",
+                "php": ">=5.5.9",
+                "symfony/expression-language": "~3.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^1.11",
+                "phpunit/phpunit": "~4.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "uuf6429\\Rune\\": "src/Rune",
+                    "uuf6429\\Rune\\example\\": "example"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christian Sciberras",
+                    "homepage": "http://christian.sciberras.me"
+                }
+            ],
+            "description": "PHP Rule Engine.",
+            "homepage": "http://github.com/uuf6429/rune",
+            "keywords": [
+                "engine",
+                "expression",
+                "rule",
+                "uuf6429"
+            ],
+            "time": "2016-08-09T13:22:34+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
