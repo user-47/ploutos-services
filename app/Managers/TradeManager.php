@@ -32,6 +32,25 @@ class TradeManager
     }
 
     /**
+     * Cancel a trade 
+     */
+    public function cancel(Trade $trade, User $user)
+    {
+        $trade->cancel($user);
+        $this->rejectOpenOffers($trade);
+    }
+
+    /**
+     * Reject a trade's open transanctions 
+     */
+    public function rejectOpenOffers(Trade $trade)
+    {
+        $trade->openOffers->each(function (Transaction $transaction) {
+            $transaction->reject();
+        });
+    }
+
+    /**
      * Filter trade query 
      */
     public static function filterTradeQuery(Builder $tradeQuery, Request $request): Builder

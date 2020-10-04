@@ -511,6 +511,73 @@ class TradeControllerTest extends TestCase
         $this->assertCount(0, $response->json()['data']);
     }
 
+    /** @test */
+    public function a_trade_request_can_be_cancelled_by_owner_if_open()
+    {
+        $seller = factory(User::class)->create();
+        (new TradeManager())->create($seller, $this->validTradeData());
+        $trade = Trade::first();
+
+        $this->actingAs($seller, 'api')->postJson("api/v1/trades/$trade->uuid/cancel");
+
+        $trade->refresh();
+        $this->assertEquals(Trade::STATUS_CANCELLED, $trade->status);
+    }
+
+    /** @test */
+    public function a_user_can_not_cancel_a_trade_request_that_is_not_open()
+    {
+        $seller = factory(User::class)->create();
+        (new TradeManager())->create($seller, $this->validTradeData());
+        $trade = Trade::first();
+        $trade->status = Trade::STATUS_PARTIAL;
+        $trade->save();
+
+        $response = $this->actingAs($seller, 'api')
+            ->postJson("api/v1/trades/$trade->uuid/cancel");
+
+        $trade->refresh();
+
+        $response->assertJsonValidationErrors('request');
+        $this->assertEquals(Trade::STATUS_PARTIAL, $trade->status);
+    }
+
+    /** @test */
+    public function a_user_can_not_cancel_a_trade_belonging_to_another_user()
+    {
+        $seller = factory(User::class)->create();
+        $user = factory(User::class)->create();
+        (new TradeManager())->create($seller, $this->validTradeData());
+        $trade = Trade::first();
+
+        $response = $this->actingAs($user, 'api')
+            ->postJson("api/v1/trades/$trade->uuid/cancel");
+
+        $trade->refresh();
+
+        $response->assertJsonValidationErrors('request');
+        $this->assertEquals(Trade::STATUS_OPEN, $trade->status);
+    }
+
+    /** @test */
+    public function a_cancelled_trade_request_rejects_all_open_offers()
+    {
+        $seller = factory(User::class)->create();
+        $buyer = factory(User::class)->create();
+        (new TradeManager())->create($seller, $this->validTradeData());
+        $trade = Trade::first();
+        $transaction = (new TradeManager())->accept($trade, $buyer, 500);
+
+        $this->actingAs($seller, 'api')->postJson("api/v1/trades/$trade->uuid/cancel");
+
+        $trade->refresh();
+        $transaction->refresh();
+        $this->assertEquals(Trade::STATUS_CANCELLED, $trade->status);
+        $this->assertCount(0, $trade->openOffers);
+        $this->assertEquals(Transaction::STATUS_REJECTED, $transaction->status);
+    }
+
+
     private function validTradeData()
     {
         return [

@@ -205,4 +205,27 @@ class Trade extends Model
             'type' => Transaction::TYPE_BUY,
         ]);
     }
+
+    /**
+     * Cancel a trade request
+     */
+    public function cancel(User $user)
+    {
+        if ($this->user->id != $user->id) {
+            throw new Exception("Can not cancel a trade not created by you.");
+        }
+
+        if ($this->status != Trade::STATUS_OPEN) {
+            throw new Exception("Can not cancel a trade that is not open.");
+        }
+
+        if ($this->status == Trade::STATUS_CANCELLED) {
+            throw new Exception("Trade already cancelled.");
+        }
+
+        $this->status = Trade::STATUS_CANCELLED;
+        $this->save();
+
+        // Todo:: raise cancelled event
+    }
 }

@@ -74,6 +74,32 @@ class TradeController extends Controller
     }
 
     /**
+     * Cancel a trade request
+     * 
+     * @return Response
+     */
+    public function cancel(Request $request, Trade $trade)
+    {
+        try {
+            (new TradeManager())->cancel($trade, $request->user());
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'trade' => new TradeRescource($trade->refresh()),
+                ],
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error cancelling trade.',
+                'errors' => [
+                    'request' => $e->getMessage()
+                ],
+            ], Response::HTTP_PRECONDITION_FAILED);
+        }
+    }
+
+    /**
      * Return a trade's transactions
      * 
      * @return Response

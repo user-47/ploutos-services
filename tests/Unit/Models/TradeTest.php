@@ -149,6 +149,27 @@ class TradeTest extends TestCase
         $this->assertEquals(0, $trade->availableAmount);
     }
 
+    /** @test */
+    public function a_trade_can_be_cancelled()
+    {
+        $trade = $this->createTrade();
+        $trade->cancel($trade->user);
+        $trade->refresh();
+
+        $this->assertEquals(Trade::STATUS_CANCELLED, $trade->status);
+    }
+
+    /** @test */
+    public function a_trade_can_not_be_cancelled_by_another_user()
+    {
+        $this->expectExceptionMessage("Can not cancel a trade not created by you.");
+        $trade = $this->createTrade();
+        $trade->cancel(factory(User::class)->create());
+        $trade->refresh();
+
+        $this->assertEquals(Trade::STATUS_OPEN, $trade->status);
+    }
+
     private function createTrade($attributes = []): Trade
     {
         Trade::create(array_merge([

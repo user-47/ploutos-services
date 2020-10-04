@@ -35,6 +35,7 @@ Route::group(['namespace' => 'Api\V1\\'], function() {
         
         // TRADES
         Route::post('/trades/{trade}/accept', 'TradeController@accept');
+        Route::post('/trades/{trade}/cancel', 'TradeController@cancel');
         Route::get('/trades/{trade}/transactions', 'TradeController@transactions');
         Route::post('/trades', 'TradeController@store');
 

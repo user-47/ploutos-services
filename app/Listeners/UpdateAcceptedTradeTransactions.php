@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\TradeTransactionsAccepted;
+use App\Managers\TradeManager;
 use App\Models\Trade;
 use App\Models\Transaction;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,9 +35,7 @@ class UpdateAcceptedTradeTransactions
         $trade->save();
 
         if ($trade->isFulfilled) {
-            $trade->openOffers->each(function (Transaction $transaction) {
-                $transaction->reject();
-            });
+            (new TradeManager())->rejectOpenOffers($trade);
         }
     }
 }
