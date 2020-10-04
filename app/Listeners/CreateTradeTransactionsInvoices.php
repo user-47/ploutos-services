@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\TradeTransactionsAccepted;
+use App\Events\TransactionAccepted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -21,12 +21,12 @@ class CreateTradeTransactionsInvoices
     /**
      * Handle the event.
      *
-     * @param  TradeTransactionsAccepted  $event
+     * @param  TransactionAccepted  $event
      * @return void
      */
-    public function handle(TradeTransactionsAccepted $event)
+    public function handle(TransactionAccepted $event)
     {
-        foreach($event->trade->transactions()->accepted()->withoutInvoice()->get() as $transaction) {
+        foreach($event->transaction->trade->transactions()->accepted()->withoutInvoice()->get() as $transaction) {
             $transaction->createInvoice();
         }
     }

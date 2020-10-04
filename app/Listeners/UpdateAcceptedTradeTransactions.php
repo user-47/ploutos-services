@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\TradeTransactionsAccepted;
+use App\Events\TransactionAccepted;
 use App\Managers\TradeManager;
 use App\Models\Trade;
 use App\Models\Transaction;
@@ -24,12 +24,12 @@ class UpdateAcceptedTradeTransactions
     /**
      * Handle the event.
      *
-     * @param  TradeTransactionsAccepted  $event
+     * @param  TransactionAccepted  $event
      * @return void
      */
-    public function handle(TradeTransactionsAccepted $event)
+    public function handle(TransactionAccepted $event)
     {
-        $trade = $event->trade;
+        $trade = $event->transaction->trade;
 
         $trade->status = $trade->availableAmount == 0 ? Trade::STATUS_FULFILLED : Trade::STATUS_PARTIAL;
         $trade->save();

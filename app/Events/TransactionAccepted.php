@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Trade;
+use App\Models\Transaction;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -11,11 +11,11 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TradeTransactionsAccepted
+class TransactionAccepted
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $trade;
+    public $transaction;
 
     /**
      * Create a new event instance.
@@ -23,9 +23,9 @@ class TradeTransactionsAccepted
      * @param \App\Models\Trade $trade
      * @return void
      */
-    public function __construct(Trade $trade)
+    public function __construct(Transaction $transaction)
     {
-        $this->trade = $trade;
+        $this->transaction = $transaction;
     }
 
     /**

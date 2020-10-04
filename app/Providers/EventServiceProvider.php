@@ -18,11 +18,11 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        'App\Events\TradeTransactionsAccepted' => [
+        'App\Events\TransactionAccepted' => [
             'App\Listeners\CreateTradeTransactionsInvoices',
             'App\Listeners\UpdateAcceptedTradeTransactions',
         ],
-        'App\Events\TradeTransactionsRejected' => [
+        'App\Events\TransactionRejected' => [
         ],
     ];
 

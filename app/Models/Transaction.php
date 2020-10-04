@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Events\TradeTransactionsAccepted;
-use App\Events\TradeTransactionsRejected;
+use App\Events\TransactionAccepted;
+use App\Events\TransactionRejected;
 use App\Managers\CurrencyManager;
 use App\RulesEngine\Engines\TransactionFeeEngine;
 use App\Traits\UuidModel;
@@ -338,7 +338,7 @@ class Transaction extends Model
         $this->reference_transaction_id = $transaction->id;
         $this->save();
 
-        event(new TradeTransactionsAccepted($this->trade));
+        event(new TransactionAccepted($this));
 
         return $transaction;
     }
@@ -355,7 +355,7 @@ class Transaction extends Model
         $this->status = Transaction::STATUS_REJECTED;
         $this->save();
 
-        event(new TradeTransactionsRejected($this));
+        event(new TransactionRejected($this));
     }
 
     /**

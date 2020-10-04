@@ -122,14 +122,6 @@ class User extends Authenticatable
     //////////////
 
     /**
-     * Gets collection of all transactions of the user
-     */
-    public function getAllTransactionsAttribute(): Collection
-    {
-        return $this->transactions()->get();
-    }
-
-    /**
      * Gets the user's default payment method
      */
     public function getDefaultPaymentMethodAttribute(): ?PaymentMethod
@@ -159,6 +151,14 @@ class User extends Authenticatable
     public function getIsAuthUserAttribute(): bool
     {
         return auth()->user() && auth()->user()->id == $this->id;
+    }
+
+    /**
+     * Gets collection of all transactions of the user
+     */
+    public function getTransactionsAttribute(): Collection
+    {
+        return $this->transactions()->get();
     }
 
     /**
