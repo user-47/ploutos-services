@@ -22,26 +22,10 @@ class TradeController extends Controller
      */
     public function index(Request $request)
     {
-        $maxLimit = 100;
-        $trades = Trade::query();
-
-        $limit = min($request->input('limit', 10), $maxLimit);
-
-        $statuses = explode(',', $request->input('status', implode(",", Trade::STATUS_OPEN_VALUES)));
-
-        $trades->whereIn('status', $statuses);
-
-        $trades->when($from_currency = $request->input('from_currency'), function($query) use ($from_currency) {
-            $query->whereIn('from_currency', explode(',', $from_currency));
-        });
-
-        $trades->when($to_currency = $request->input('to_currency'), function($query) use ($to_currency) {
-            $query->whereIn('to_currency', explode(',', $to_currency));
-        });
-
-        $trades->orderBy('created_at', 'desc')->orderBy('id', 'desc');
-
-        return new TradeCollection($trades->paginate($limit));
+        $trades = TradeManager::filterTradeQuery(Trade::query(), $request);
+        $trades = TradeManager::orderTradeQuery($trades, $request);
+        $trades = TradeManager::paginateTradeQuery($trades, $request);
+        return new TradeCollection($trades);
     }
 
     /**

@@ -52,12 +52,14 @@ class AuthController extends Controller
             ]);
         }
 
-        $accessToken = Auth::user()->createToken('authToken')->accessToken;
+        /** @var User */
+        $user = Auth::user();
+        $accessToken = $user->createToken('authToken')->accessToken;
 
         return response()->json([
             'success' => true, 
             'data' => [
-                'user' => new UserResource(Auth::user()), 
+                'user' => new UserResource($user), 
                 'access_token' => $accessToken,
             ],
         ]);
