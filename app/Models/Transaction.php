@@ -27,6 +27,14 @@ class Transaction extends Model
     const STATUS_REJECTED = 'rejected';
     const STATUS_CANCELLED = 'cancelled';
 
+    const STATUS_ALL_STATUSES = [
+        self::STATUS_OPEN,
+        self::STATUS_ACCEPTED,
+        self::STATUS_PAID,
+        self::STATUS_REJECTED,
+        self::STATUS_CANCELLED,
+    ];
+    
     const STATUS_CLOSED = [
         self::STATUS_ACCEPTED,
         self::STATUS_PAID

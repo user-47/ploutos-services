@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Traits\UuidModel;
 use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -52,6 +54,14 @@ class User extends Authenticatable
     ///////////////////
 
     /**
+     * Get the buy transactions of the user
+     */
+    public function buyTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'buyer_id');
+    }
+
+    /**
      * Get the cards belonging to this user
      */
     public function cards(): HasMany
@@ -92,6 +102,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the sell transactions of the user
+     */
+    public function sellTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'seller_id');
+    }
+
+    /**
      * Get the trades for the user.
      */
     public function trades() : HasMany
@@ -102,6 +120,14 @@ class User extends Authenticatable
     //////////////
     // MUTATORS //
     //////////////
+
+    /**
+     * Gets collection of all transactions of the user
+     */
+    public function getAllTransactionsAttribute(): Collection
+    {
+        return $this->transactions()->get();
+    }
 
     /**
      * Gets the user's default payment method
@@ -198,5 +224,17 @@ class User extends Authenticatable
         } else {
             throw new Exception("Can't set identifier on model instance that is not saved.");
         }
+    }
+
+    /**
+     * Get query for all transactions of the user
+     */
+    public function transactions(): Builder
+    {
+        return Transaction::where(function($q) {
+            $q->buyer($this);
+        })->orWhere(function($q) {
+            $q->seller($this);
+        });
     }
 }

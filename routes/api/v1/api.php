@@ -31,6 +31,7 @@ Route::group(['namespace' => 'Api\V1\\'], function() {
     Route::group(['middleware' => 'auth:api'], function() {
         // USERS
         Route::get('/users/trades', 'UserController@trades');
+        Route::get('/users/transactions', 'UserController@transactions');
         Route::get('/users/{user}', 'UserController@show');
         
         // TRADES
