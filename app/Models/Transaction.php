@@ -172,7 +172,7 @@ class Transaction extends Model
                 $this->amount, 
                 $this->trade->from_currency, 
                 $this->trade->to_currency, 
-                $this->trade->rate
+                $this->trade->exchangeRate
             ) 
             : $this->amount;
     }
@@ -187,7 +187,7 @@ class Transaction extends Model
                 $this->fee, 
                 $this->trade->from_currency, 
                 $this->trade->to_currency, 
-                $this->trade->rate
+                $this->trade->exchangeRate
             ) 
             : $this->fee;
     }

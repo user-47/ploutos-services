@@ -30,6 +30,7 @@ class Trade extends Model
         'to_currency',
         'rate',
         'user_id',
+        'rate_base_currency',
     ];
 
     protected static function booted()
@@ -126,7 +127,18 @@ class Trade extends Model
      */
     public function getExchangeAmountAttribute():int
     {
-        return CurrencyManager::convertMinor($this->availableAmount, $this->from_currency, $this->to_currency, $this->rate);
+        return CurrencyManager::convertMinor($this->availableAmount, $this->from_currency, $this->to_currency, $this->exchangeRate);
+    }
+
+    /**
+     * Get the actual exchange rate based on the rate base currency
+     */
+    public function getExchangeRateAttribute()
+    {
+        if (is_null($this->rate_base_currency) || $this->rate_base_currency == $this->from_currency) {
+            return $this->rate;
+        }
+        return 1 / $this->rate;
     }
 
     /**
