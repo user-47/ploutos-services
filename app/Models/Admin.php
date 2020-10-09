@@ -31,6 +31,10 @@ class Admin extends Authenticatable
     }
 
     //////////////
+    // ACCESORS //
+    //////////////
+
+    //////////////
     // MUTATORS //
     //////////////
 

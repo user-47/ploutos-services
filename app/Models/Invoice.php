@@ -110,7 +110,7 @@ class Invoice extends Model
     }
 
     //////////////
-    // MUTATORS //
+    // ACCESORS //
     //////////////
 
     /**
@@ -160,6 +160,10 @@ class Invoice extends Model
         }
         return 0;
     }
+
+    //////////////
+    // MUTATORS //
+    //////////////
 
     ////////////
     // SCOPES //

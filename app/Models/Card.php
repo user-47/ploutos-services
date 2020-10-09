@@ -24,6 +24,10 @@ class Card extends Model
     }
 
     //////////////
+    // ACCESORS //
+    //////////////
+
+    //////////////
     // MUTATORS //
     //////////////
 

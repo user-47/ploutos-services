@@ -118,7 +118,7 @@ class User extends Authenticatable
     }
 
     //////////////
-    // MUTATORS //
+    // ACCESORS //
     //////////////
 
     /**
@@ -160,6 +160,10 @@ class User extends Authenticatable
     {
         return $this->transactions()->get();
     }
+
+    //////////////
+    // MUTATORS //
+    //////////////
 
     /**
      * Encrypt password value before saving.

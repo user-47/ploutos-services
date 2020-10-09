@@ -37,7 +37,7 @@ class PaymentMethod extends Model
     }
 
     //////////////
-    // MUTATORS //
+    // ACCESORS //
     //////////////
 
     /**
@@ -55,6 +55,10 @@ class PaymentMethod extends Model
     {
         return strtoupper($this->paymentProvider->name) . ' - ' . strtoupper($this->type);
     }
+
+    //////////////
+    // MUTATORS //
+    //////////////
 
     ////////////
     // SCOPES //

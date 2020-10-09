@@ -52,6 +52,10 @@ class Refund extends Model
     }
 
     //////////////
+    // ACCESORS //
+    //////////////
+
+    //////////////
     // MUTATORS //
     //////////////
 

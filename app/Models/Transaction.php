@@ -103,7 +103,7 @@ class Transaction extends Model
     }
 
     //////////////
-    // MUTATORS //
+    // ACCESORS //
     //////////////
 
     /**
@@ -191,6 +191,10 @@ class Transaction extends Model
             ) 
             : $this->fee;
     }
+
+    //////////////
+    // MUTATORS //
+    //////////////
 
     ////////////
     // SCOPES //

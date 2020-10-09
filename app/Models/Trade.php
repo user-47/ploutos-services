@@ -111,7 +111,7 @@ class Trade extends Model
     }
 
     //////////////
-    // MUTATORS //
+    // ACCESORS //
     //////////////
 
     /**
@@ -156,6 +156,10 @@ class Trade extends Model
     {
         return $this->status == self::STATUS_FULFILLED;
     }
+
+    //////////////
+    // MUTATORS //
+    //////////////
 
     ////////////
     // SCOPES //

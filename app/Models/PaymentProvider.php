@@ -39,6 +39,10 @@ class PaymentProvider extends Model
     }
 
     //////////////
+    // ACCESORS //
+    //////////////
+
+    //////////////
     // MUTATORS //
     //////////////
 
