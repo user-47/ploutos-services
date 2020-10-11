@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\UserVerificationEmail;
 use App\Traits\UuidModel;
 use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -196,6 +197,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasOpenOffer(Trade $trade): bool
     {
         return $trade->openOffers()->buyer($this)->count() > 0;
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new UserVerificationEmail());
     }
 
     /**
