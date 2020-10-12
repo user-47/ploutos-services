@@ -2,15 +2,12 @@
 
 namespace App\Notifications;
 
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\URL;
 
-class UserVerificationEmail extends Notification implements ShouldQueue
+class WelcomeMessage extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -44,9 +41,8 @@ class UserVerificationEmail extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->subject('Please verify your email on ' . config('app.name'))
-                    ->markdown('emails.user.verification_email', [
-                        'url' => $this->verificationUrl($notifiable),
+                    ->subject('Welcome to ' . config('app.name'))
+                    ->markdown('emails.user.welcome_message', [
                         'notifiable' => $notifiable,
                     ]);
     }
@@ -62,23 +58,5 @@ class UserVerificationEmail extends Notification implements ShouldQueue
         return [
             //
         ];
-    }
-
-    /**
-     * Get the verification URL for the given notifiable.
-     *
-     * @param  mixed  $notifiable
-     * @return string
-     */
-    protected function verificationUrl($notifiable)
-    {
-        return URL::temporarySignedRoute(
-            'verification.verify',
-            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
-            [
-                'id' => $notifiable->getKey(),
-                'hash' => sha1($notifiable->getEmailForVerification()),
-            ]
-        );
     }
 }

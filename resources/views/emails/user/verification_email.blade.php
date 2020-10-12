@@ -1,5 +1,5 @@
 @component('mail::message')
-# Welcome {{ $notifiable->first_name }},
+# Hello {{ $notifiable->first_name }},
 
 Thank you for creating your account on {{ config('app.name') }}. You must verify your email address to activate your account. 
 
@@ -10,6 +10,7 @@ Verify Email Address
 @endcomponent
 
 If you did not create an account, no further action is required.
+
 Thanks,
 
 {{ config('app.name') }} Team
